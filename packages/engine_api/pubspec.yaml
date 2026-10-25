@@ -1,0 +1,15 @@
+name: engine_api
+description: Pigeon contract between the Flutter app and the native capture and speech engines (spec §5.3).
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.0
+  flutter: ">=3.35.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  pigeon: ^26.0.0
