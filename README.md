@@ -2,7 +2,7 @@
 
 Codename for the **Day Recap App** (working name): a phone app that listens when you ask, knows who said what, and turns each moment into the right output (meeting minutes, a trip journal, a reel), then hands back one short recap each evening. Audio and voice signatures stay on the phone; only pseudonymized text from flagged moments goes to the cloud.
 
-The repository is at the specification stage. No app code exists yet.
+The first slice of Phase 1 is in: gateway contracts, the Supabase schema and gateway skeleton, and the Flutter app skeleton with a fake capture engine. The native engines are not built yet. Commands are in [AGENTS.md](AGENTS.md#commands).
 
 ## Docs
 
@@ -16,13 +16,13 @@ The repository is at the specification stage. No app code exists yet.
 
 The product docs are snapshots of living Claude Docs documents; each file links to its canonical source at the top.
 
-## Planned layout
+## Layout
 
 ```
-app/        Flutter application
-packages/   Native engines (capture, speech, media) and shared contracts
+app/        Flutter application (web build is a dev preview)
+packages/   Shared contracts (cloud_contracts, engine_api); native engines to come
 backend/    Supabase migrations and the gateway edge function
-eval/       Evaluation harness for speaker, transcription and item accuracy
+eval/       Evaluation harness (planned)
 docs/       Specs and product docs
 ```
 

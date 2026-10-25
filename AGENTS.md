@@ -1,23 +1,38 @@
 # mona — Agent Guide
 
-Codename for the Day Recap App: an iPhone app (Android later) that records conversations the user starts, knows who said what, and hands back one short recap each evening, with promises, decisions and things to remember. Audio and voice signatures stay on the phone; only pseudonymized text goes to the cloud. The repo is at the specification and design stage: there is no app code yet. Planned stack: Flutter app with native Swift engines for capture and speech, Supabase (Postgres, a Deno/TypeScript edge-function gateway), and a Python evaluation harness. Nothing is deployed.
+Codename for the Day Recap App: an iPhone app (Android later) that records conversations the user starts, knows who said what, and hands back one short recap each evening, with promises, decisions and things to remember. Audio and voice signatures stay on the phone; only pseudonymized text goes to the cloud. Stack: Flutter app with native Swift engines for capture and speech, Supabase (Postgres, a Deno/TypeScript edge-function gateway), and a Python evaluation harness. The first slice of Phase 1 M1 exists: contracts, the server schema and gateway skeleton, and the app skeleton with a fake capture engine. The Swift engines, the eval harness and every LLM route are not built. Nothing is deployed.
 
 ## Commands
 
-- None yet. The repo holds docs only. The planned commands per package are in [the spec, §17](docs/implementation-spec.md#17-testing-and-ci).
+Toolchains: Flutter as pinned in `.fvmrc`, Deno 2. CI runs the same steps (`.github/workflows/`).
+
+| Where | Command | Does |
+| --- | --- | --- |
+| `app/` | `flutter pub get`, `dart run build_runner build` | Dependencies; drift code (`lib/data/database.g.dart`) |
+| `app/` | `flutter analyze`, `dart format lib test`, `flutter test` | Lint, format, unit, DB and widget tests (SQLCipher in-process) |
+| `app/` | `./tool/fetch_web_assets.sh`, then `flutter run -d web-server --dart-define=LOCALE=zh_Hant_TW` | Web dev preview with the Mia sample day (D26) |
+| `backend/supabase/` | `deno fmt --check`, `deno lint`, `deno task check`, `deno task test` | Gateway tests and migration tests on PGlite |
+| `backend/` | `supabase db start`, `supabase db lint` | Migrations on a local Supabase (needs Docker) |
+| `packages/cloud_contracts/` | `deno task gen` | Regenerate TS and Dart types after a schema change; commit the output |
+| `packages/engine_api/` | `dart run pigeon --input pigeons/engine.dart` | Regenerate the native channel code |
 
 ## Verifying work
 
 - Docs: links and `#anchors` resolve, every Markdown table row has the header's column count (a `|` inside backticks still splits a cell on GitHub), and Mermaid blocks parse.
 - Spec changes: a new choice gets a row in §21 Decisions; a finding from a review gets a row in §24 Review log; section numbers and the contents list stay in step.
-- Screens are proven on the design canvas (Play), not by reading their source.
+- Screens are proven on the design canvas (Play), not by reading their source. Built screens are proven in the web preview with Playwright screenshots (Chromium is pre-installed in cloud sessions).
+- Code: the commands above pass, and a change that touches an invariant has a test named after it (`I9: ...`).
 
 ## Repository layout
 
 - `docs/implementation-spec.md` — how the app is built: invariants I1 to I13, architecture, data model, API contracts, Phase 0 and Phase 1 plans.
 - `docs/product/` — PRD and research docs, snapshots of Claude Docs documents.
 - `docs/design/` — the UI design brief (`ui-design.md`) and a snapshot of the design canvas (`canvas/project/`).
-- `app/`, `packages/`, `backend/`, `eval/` — planned, not created yet; see [spec §4](docs/implementation-spec.md#4-repository-layout).
+- `app/` — the Flutter app. `lib/data/schema.drift` is a copy of spec §10.2 (a test checks it).
+- `packages/cloud_contracts/` — gateway JSON Schemas and their generated Dart and TypeScript.
+- `packages/engine_api/` — the Pigeon contract for the native engines; Swift side not built.
+- `backend/supabase/` — migrations, the `gateway` edge function, tests.
+- `eval/`, `packages/capture_engine/`, `packages/speech_engine/`, `packages/native_core/` — planned; see [spec §4](docs/implementation-spec.md#4-repository-layout).
 
 ## Conventions
 
@@ -30,6 +45,9 @@ Codename for the Day Recap App: an iPhone app (Android later) that records conve
 
 ## Gotchas
 
+- Generated files are committed (drift, l10n, contracts, Pigeon). Regenerate after changing their source; CI fails on a diff.
+- Widget tests that touch the database: don't `await` a broadcast subscription's `cancel()` (its future lives in the root zone and never completes under the test's fake clock), and tear the app down inside the test body so drift's timers fire.
+- The local schema is copied from the spec; change spec §10.2 first. drift drops an unquoted column named `key`, so the copy quotes it.
 - In cloud sessions `gh auth status` reports the token as invalid, but `gh` calls work through the session's proxy. Check with `gh api user -q .login`.
 - Cloud sessions also block GitHub's GraphQL API, which `gh issue` and `gh label` use. There, use the REST API: `gh api repos/yongtao-wang/mona/issues` (list, add `-f title=... -f body=... -f 'labels[]=auto'` with `-X POST` to create), `gh api -X PATCH repos/yongtao-wang/mona/issues/N -f state=closed`, `gh api repos/yongtao-wang/mona/labels`. Deleting an issue needs GraphQL, so there "drop" closes it as not planned (`-f state_reason=not_planned`) instead.
 - The design canvas and the published design brief are private Claude artifacts. Agents under other accounts can't open them until they are shared; they work from `docs/design/` instead.

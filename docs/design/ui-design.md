@@ -58,6 +58,8 @@ Use these values; add a token here before using a new one.
 | `promise` | `#FFB37A` | Promise labels and item-count badges |
 | `mark` | `#FFD66B` | Marked-moment star |
 | `rec-pill` | `#26141A` | State pill background while recording |
+| `tile-meta` | `#D5D5DC` | Time and meta text on moment tiles |
+| `promise-ink` | `#2A1608` | Text on `promise` badges; due-date chip ground |
 
 **Scene grounds** (tile and card backgrounds; white text passes on all)
 
@@ -122,7 +124,7 @@ Status: **done** (on the canvas, reviewed by the user), **draft** (on the canvas
 
 | # | Screen | Artboard | Spec | Status | Owner | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Today grid | `Main.dc.html` | §5.4 | draft | — | Replaced the vertical feed after review |
+| 1 | Today grid | `Main.dc.html` | §5.4 | draft | — | Replaced the vertical feed after review. Built in `app/lib/features/today/` (record button starts Day mode directly until Shoot is built) |
 | 2 | Shoot | `Capture.dc.html` | §6.3, PRD J4 | draft | — | Show prompt chip, mark button |
 | 3 | Live meeting | `Meeting.dc.html` | §5.4, §7.6 | draft | — | Stop = make minutes |
 | 4 | Evening recap | `Recap.dc.html` | §9.3, §9.5 | draft | — | Rebuilt as one scannable page after review (the stories version hid the overview); 390 × 1560 to show the full scroll |

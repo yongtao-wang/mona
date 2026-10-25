@@ -1,0 +1,37 @@
+name: backend
+
+on:
+  pull_request:
+    paths: [backend/**, packages/cloud_contracts/**, .github/workflows/backend.yml]
+  push:
+    branches: [main]
+
+jobs:
+  deno:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend/supabase
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno fmt --check
+      - run: deno lint
+      - run: deno task check
+      - run: deno task test
+
+  supabase:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Migrations apply to a local Supabase
+        run: supabase db start
+      - run: supabase db lint --level warning --fail-on warning

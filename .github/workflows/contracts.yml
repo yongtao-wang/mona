@@ -1,0 +1,22 @@
+name: contracts
+
+on:
+  pull_request:
+    paths: [packages/cloud_contracts/**, backend/supabase/functions/_shared/contracts/**, .github/workflows/contracts.yml]
+  push:
+    branches: [main]
+
+jobs:
+  generated:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Generated types match the schemas
+        working-directory: packages/cloud_contracts
+        run: |
+          deno fmt --check scripts
+          deno task gen
+          git diff --exit-code

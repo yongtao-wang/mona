@@ -659,7 +659,7 @@ Ids are UUIDv7 strings. Times are UTC epoch milliseconds unless the column name 
 
 ```sql
 CREATE TABLE session (
-  id                  TEXT PRIMARY KEY,
+  id                  TEXT PRIMARY KEY NOT NULL,
   run_id              TEXT NOT NULL,          -- capture run (§6.9); sessions of one run are back to back
   scene               TEXT NOT NULL CHECK (scene IN ('day','meeting','trip','show','lecture','appointment')),
   start_trigger       TEXT NOT NULL,          -- in_app | control | action_button | live_activity | notification | scene_switch | watch
@@ -681,7 +681,7 @@ CREATE TABLE session (
 CREATE INDEX session_run ON session(run_id, started_at);
 
 CREATE TABLE capture_gap (
-  id         TEXT PRIMARY KEY,
+  id         TEXT PRIMARY KEY NOT NULL,
   session_id TEXT NOT NULL REFERENCES session(id) ON DELETE CASCADE,
   start_ms   INTEGER NOT NULL,
   end_ms     INTEGER,
@@ -690,7 +690,7 @@ CREATE TABLE capture_gap (
 );
 
 CREATE TABLE person (
-  id           TEXT PRIMARY KEY,
+  id           TEXT PRIMARY KEY NOT NULL,
   display_name TEXT NOT NULL,
   aliases      TEXT,                          -- JSON array: given name, English name, nicknames (§8.4)
   is_self      INTEGER NOT NULL DEFAULT 0,    -- the user's own row, so the pseudonymizer knows their name
@@ -700,7 +700,7 @@ CREATE TABLE person (
 CREATE UNIQUE INDEX person_one_self ON person(is_self) WHERE is_self = 1;
 
 CREATE TABLE speaker (
-  id           TEXT PRIMARY KEY,
+  id           TEXT PRIMARY KEY NOT NULL,
   session_id   TEXT NOT NULL REFERENCES session(id) ON DELETE CASCADE,
   label        TEXT NOT NULL,                 -- 'You', 'B', 'C' ...
   is_self      INTEGER NOT NULL DEFAULT 0,
@@ -710,7 +710,7 @@ CREATE TABLE speaker (
 );
 
 CREATE TABLE consent_record (
-  id              TEXT PRIMARY KEY,
+  id              TEXT PRIMARY KEY NOT NULL,
   kind            TEXT NOT NULL CHECK (kind IN ('self_voice','remembered_voice','analytics')),
   subject_person  TEXT REFERENCES person(id),
   text_version    TEXT NOT NULL,              -- which consent wording was shown
@@ -719,7 +719,7 @@ CREATE TABLE consent_record (
 );
 
 CREATE TABLE voice_signature (
-  id                TEXT PRIMARY KEY,
+  id                TEXT PRIMARY KEY NOT NULL,
   is_self           INTEGER NOT NULL,
   person_id         TEXT REFERENCES person(id) ON DELETE CASCADE,
   model_id          TEXT NOT NULL,            -- embedding model and version
@@ -741,7 +741,7 @@ WHEN NEW.withdrawn_at IS NOT NULL
 BEGIN DELETE FROM voice_signature WHERE consent_record_id = NEW.id; END;
 
 CREATE TABLE moment (
-  id                 TEXT PRIMARY KEY,
+  id                 TEXT PRIMARY KEY NOT NULL,
   session_id         TEXT NOT NULL REFERENCES session(id) ON DELETE CASCADE,
   state              TEXT NOT NULL DEFAULT 'open' CHECK (state IN ('open','closed')),
   start_ms           INTEGER NOT NULL,
@@ -796,7 +796,7 @@ CREATE TRIGGER utterance_fts_au AFTER UPDATE OF text ON utterance BEGIN
 END;
 
 CREATE TABLE item (
-  id                      TEXT PRIMARY KEY,
+  id                      TEXT PRIMARY KEY NOT NULL,
   moment_id               TEXT NOT NULL REFERENCES moment(id) ON DELETE CASCADE,
   type                    TEXT NOT NULL CHECK (type IN ('promise','decision','fact','question')),
   text                    TEXT NOT NULL,        -- with {{spk:id}} / {{per:id}} placeholders
@@ -844,7 +844,7 @@ WHEN NOT EXISTS (SELECT 1 FROM item_source WHERE item_id = OLD.item_id)
 BEGIN DELETE FROM item WHERE id = OLD.item_id AND origin = 'model'; END;
 
 CREATE TABLE media (
-  id          TEXT PRIMARY KEY,
+  id          TEXT PRIMARY KEY NOT NULL,
   session_id  TEXT NOT NULL REFERENCES session(id) ON DELETE CASCADE,
   kind        TEXT NOT NULL CHECK (kind IN ('audio','video','photo')),
   rel_path    TEXT NOT NULL,
@@ -858,14 +858,14 @@ CREATE TABLE media (
 CREATE INDEX media_delete_at ON media(delete_at) WHERE deleted_at IS NULL;
 
 CREATE TABLE mark (
-  id         TEXT PRIMARY KEY,
+  id         TEXT PRIMARY KEY NOT NULL,
   session_id TEXT NOT NULL REFERENCES session(id) ON DELETE CASCADE,
   at_ms      INTEGER NOT NULL,
   source     TEXT NOT NULL CHECK (source IN ('button','live_activity','voice','watch'))
 );
 
 CREATE TABLE recap (
-  id             TEXT PRIMARY KEY,
+  id             TEXT PRIMARY KEY NOT NULL,
   day            TEXT NOT NULL UNIQUE,          -- YYYY-MM-DD local
   cutoff_at      INTEGER NOT NULL,
   generated_at   INTEGER NOT NULL,
@@ -886,7 +886,7 @@ CREATE TABLE recap_entry (
 );
 
 CREATE TABLE feedback (
-  id       TEXT PRIMARY KEY,
+  id       TEXT PRIMARY KEY NOT NULL,
   item_id  TEXT NOT NULL REFERENCES item(id) ON DELETE CASCADE,
   recap_id TEXT REFERENCES recap(id) ON DELETE SET NULL,
   verdict  TEXT NOT NULL CHECK (verdict IN ('right','wrong','not_important')),
@@ -894,7 +894,7 @@ CREATE TABLE feedback (
 );
 
 CREATE TABLE pause_zone (
-  id        TEXT PRIMARY KEY,
+  id        TEXT PRIMARY KEY NOT NULL,
   name      TEXT NOT NULL,
   lat       REAL NOT NULL,
   lng       REAL NOT NULL,
@@ -902,7 +902,7 @@ CREATE TABLE pause_zone (
 );
 
 CREATE TABLE cloud_job (
-  id              TEXT PRIMARY KEY,
+  id              TEXT PRIMARY KEY NOT NULL,
   kind            TEXT NOT NULL CHECK (kind IN ('label','recap')),
   target_id       TEXT NOT NULL,                -- moment id, or recap day
   status          TEXT NOT NULL CHECK (status IN ('queued','in_flight','done','failed','blocked')),
@@ -919,8 +919,8 @@ CREATE TABLE telemetry_outbox (
   occurred_at INTEGER NOT NULL
 );
 
-CREATE TABLE setting (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-CREATE TABLE flag    (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+CREATE TABLE setting (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL);
+CREATE TABLE flag    (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL);
 ```
 
 Phase 2 adds `clip`, `trip`, translation fields in use, and the vector index; those migrations must not rewrite Phase 1 tables.
@@ -994,7 +994,7 @@ create table public.device (
   id           uuid primary key default gen_random_uuid(),
   user_id      uuid not null references auth.users on delete cascade,
   install_id   uuid not null,       -- random per install, kept in the Keychain; makes registration idempotent
-  platform     text not null check (platform in ('ios','android')),
+  platform     text not null check (platform in ('ios','android','web')),   -- web: dev preview only (D26)
   app_version  text not null,
   os_version   text not null,
   model        text,
@@ -1042,6 +1042,13 @@ create table public.deletion_request (
   user_id      uuid primary key,
   requested_at timestamptz not null default now(),
   completed_at timestamptz
+);
+
+create table public.plan_quota (              -- per-plan caps read by consume_quota
+  plan          text primary key check (plan in ('alpha','free','plus')),
+  daily_calls   int    not null,
+  daily_tokens  bigint not null,
+  rate_per_min  int    not null default 30
 );
 ```
 
@@ -1594,6 +1601,10 @@ Choices this spec makes that the source docs leave open or that resolve a confli
 | D23 | System contact picker instead of contacts permission | One fewer permission; shares only the chosen contact | — |
 | D24 | Live Activity 8-hour rollover needs a tap; otherwise capture pauses | ActivityKit generally refuses background starts; a stale indicator would break I2 | S1 shows a silent background rollover works |
 | D25 | Agents build; humans run devices, users, review and legal. Estimates in agent hours, calendar set by real-world pace-setters | Build time is no longer the constraint; device runs, user studies and third parties are | If device or review bandwidth becomes the bottleneck (§20) |
+| D26 | A Flutter web build exists as a dev preview only: fake capture engine, unencrypted drift WASM database, the Mia sample day; devices register as `platform = 'web'` | Lets agents and reviewers run and screenshot screens without a Mac or an iPhone; never shipped | If it starts to drive design choices that iOS can't follow |
+| D27 | Server migrations are tested on PGlite (Postgres in WASM) with a small `auth` stand-in, and on a local Supabase in CI | Cloud agent containers have no Docker; PGlite still runs the real SQL, RLS and triggers | If a migration needs an extension PGlite lacks |
+| D28 | `cloud_contracts` generates TypeScript and Dart types with quicktype, and bundles the schemas for the gateway's Ajv validator | One generator for both languages; the gateway validates against the same files | If generated Dart becomes awkward enough to hand-write |
+| D29 | The gateway verifies JWTs itself (`verify_jwt = false` on the function) | So a bad token gets the §12.7 error body instead of the platform's | — |
 
 ---
 
@@ -1720,3 +1731,5 @@ What a fresh review of v0.1 found and what changed. Severity: **High** would hav
 | R43 | Low | §8.3 | The PRD's offline Trip makes on-device labeling a Phase 2 prerequisite; Foundation Models may be limited in the background | Stated; S4 measures both |
 | R44 | Low | §7.2 | Breeze-ASR-25 delivery, storage, memory, license and checkpointing unspecified | Delivery and checkpointing specified; S3 and S9 cover the rest |
 | R45 | High | §19, §20 | (v0.2 follow-up) The plan was estimated in engineer-weeks for a human team; code is built by agents | Re-estimated in agent hours, with the calendar set by device tests, user studies, review and counsel; Gate B at about 6 weeks instead of 11 (D25) |
+| R46 | Medium | §10.2 | (M1 build) SQLite lets a `TEXT PRIMARY KEY` column hold NULL, so a bug could insert rows with no id; drift also generated every id as nullable | `NOT NULL` on every text primary key |
+| R47 | Low | §11.2 | (M1 build) `consume_quota` checks per-plan daily caps, but no table held them | `plan_quota` table |

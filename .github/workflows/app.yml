@@ -1,0 +1,53 @@
+name: app
+
+on:
+  pull_request:
+    paths: [app/**, packages/cloud_contracts/dart/**, packages/engine_api/**, .fvmrc, .github/workflows/app.yml]
+  push:
+    branches: [main]
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.8
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Generated code is up to date and everything is formatted
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          flutter gen-l10n
+          dart format lib test
+          git diff --exit-code
+      - run: flutter analyze
+      - run: flutter test
+      - name: Web preview builds
+        run: |
+          ./tool/fetch_web_assets.sh
+          flutter build web --no-web-resources-cdn
+
+  engine_api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/engine_api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.8
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - name: Pigeon output is up to date
+        run: |
+          dart run pigeon --input pigeons/engine.dart
+          git diff --exit-code
+      - run: flutter analyze
