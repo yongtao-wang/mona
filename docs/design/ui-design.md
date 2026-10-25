@@ -5,6 +5,7 @@
 | Status | Draft v0.1, open for contributors |
 | Date | 2026-10-25 |
 | Canvas | https://claude.ai/artifact/8d6FrzHW22Gfw2oGSTVxLn (canonical; private until shared from its Share menu) |
+| Published brief | https://claude.ai/artifact/QBbjWfwDQ92iL6jvDxU7Lu (a copy of this doc for agents; republish it after changing this file) |
 | Snapshot | [`canvas/`](canvas/): the canvas files as of this doc's date, for agents that cannot open the canvas |
 | Inputs | [PRD](../product/prd.md), [Implementation spec](../implementation-spec.md) |
 
