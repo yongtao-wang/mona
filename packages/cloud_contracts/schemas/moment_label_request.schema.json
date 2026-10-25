@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mona.app/contracts/moment_label_request.schema.json",
+  "title": "MomentLabelRequest",
+  "description": "POST /v1/moments/label (spec §12.1). Pseudonymized; ids are per-request aliases.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "moment",
+    "participants",
+    "mentioned",
+    "utterances",
+    "options"
+  ],
+  "properties": {
+    "schema_version": {
+      "$ref": "common.schema.json#/$defs/SchemaVersion"
+    },
+    "moment": {
+      "title": "LabelMoment",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref",
+        "scene_hint",
+        "local_date",
+        "local_start",
+        "tz",
+        "duration_s",
+        "languages"
+      ],
+      "properties": {
+        "ref": {
+          "$ref": "common.schema.json#/$defs/MomentAlias"
+        },
+        "scene_hint": {
+          "anyOf": [
+            {
+              "title": "SceneHint",
+              "type": "string",
+              "enum": [
+                "meeting",
+                "commute",
+                "solo"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "local_date": {
+          "$ref": "common.schema.json#/$defs/LocalDate"
+        },
+        "local_start": {
+          "$ref": "common.schema.json#/$defs/LocalTime"
+        },
+        "tz": {
+          "$ref": "common.schema.json#/$defs/TimeZone"
+        },
+        "duration_s": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "languages": {
+          "type": "array",
+          "maxItems": 4,
+          "items": {
+            "type": "string",
+            "maxLength": 16
+          }
+        }
+      }
+    },
+    "participants": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "common.schema.json#/$defs/SpeakerToken"
+      }
+    },
+    "mentioned": {
+      "type": "array",
+      "maxItems": 64,
+      "items": {
+        "$ref": "common.schema.json#/$defs/SpeakerToken"
+      }
+    },
+    "utterances": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5000,
+      "items": {
+        "title": "LabelUtterance",
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "speaker",
+          "t",
+          "text",
+          "uncertain"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/UtteranceAlias"
+          },
+          "speaker": {
+            "$ref": "common.schema.json#/$defs/SpeakerToken"
+          },
+          "t": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Seconds from the moment's start"
+          },
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "uncertain": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "options": {
+      "title": "LabelOptions",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "purpose",
+        "want_title"
+      ],
+      "properties": {
+        "purpose": {
+          "title": "LabelPurpose",
+          "type": "string",
+          "enum": [
+            "label",
+            "minutes"
+          ]
+        },
+        "want_title": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

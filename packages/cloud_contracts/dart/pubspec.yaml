@@ -1,0 +1,13 @@
+name: cloud_contracts
+description: Gateway request and response types, generated from ../schemas (spec §12).
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.9.0
+
+dependencies:
+  meta: ^1.16.0
+
+dev_dependencies:
+  test: ^1.25.0

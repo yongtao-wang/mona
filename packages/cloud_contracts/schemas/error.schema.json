@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mona.app/contracts/error.schema.json",
+  "title": "ErrorResponse",
+  "description": "Every gateway error (spec §12.7). Never contains request content.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["error"],
+  "properties": {
+    "error": {
+      "title": "ErrorBody",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "retryable", "request_id"],
+      "properties": {
+        "code": {
+          "title": "ErrorCode",
+          "type": "string",
+          "enum": [
+            "invalid_request", "unauthorized", "device_unknown", "not_found", "method_not_allowed",
+            "body_too_large", "model_refused", "upgrade_required", "rate_limited", "quota_exceeded",
+            "internal", "model_output_invalid", "analysis_disabled", "upstream_timeout"
+          ]
+        },
+        "retryable": { "type": "boolean" },
+        "request_id": { "type": "string" }
+      }
+    }
+  }
+}

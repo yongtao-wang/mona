@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mona.app/contracts/recap_response.schema.json",
+  "title": "RecapResponse",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["quiet_day", "ranked", "highlight", "fun_line", "model_version"],
+  "properties": {
+    "quiet_day": { "type": "boolean" },
+    "ranked": { "type": "array", "maxItems": 50, "items": { "$ref": "common.schema.json#/$defs/ItemAlias" } },
+    "highlight": { "anyOf": [{ "$ref": "common.schema.json#/$defs/MomentAlias" }, { "type": "null" }] },
+    "fun_line": { "type": ["string", "null"], "maxLength": 300 },
+    "model_version": { "$ref": "common.schema.json#/$defs/ModelVersion" }
+  }
+}

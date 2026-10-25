@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mona.app/contracts/recap_request.schema.json",
+  "title": "RecapRequest",
+  "description": "POST /v1/recap (spec §12.2). Tokens are day-scoped for this request.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "day", "tz", "moments", "items", "marks", "stats", "preferences", "max_entries"],
+  "properties": {
+    "schema_version": { "$ref": "common.schema.json#/$defs/SchemaVersion" },
+    "day": { "$ref": "common.schema.json#/$defs/LocalDate" },
+    "tz": { "$ref": "common.schema.json#/$defs/TimeZone" },
+    "moments": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "title": "RecapMoment",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "scene", "local_start", "duration_s", "title", "summary"],
+        "properties": {
+          "ref": { "$ref": "common.schema.json#/$defs/MomentAlias" },
+          "scene": { "type": ["string", "null"], "maxLength": 32 },
+          "local_start": { "$ref": "common.schema.json#/$defs/LocalTime" },
+          "duration_s": { "type": "integer", "minimum": 0 },
+          "title": { "type": ["string", "null"], "maxLength": 200 },
+          "summary": { "type": ["string", "null"], "maxLength": 4000 }
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "title": "RecapItem",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "moment", "type", "direction", "text", "due_date", "confidence"],
+        "properties": {
+          "ref": { "$ref": "common.schema.json#/$defs/ItemAlias" },
+          "moment": { "$ref": "common.schema.json#/$defs/MomentAlias" },
+          "type": { "$ref": "common.schema.json#/$defs/ItemType" },
+          "direction": { "title": "Direction", "type": "string", "enum": ["by_user", "to_user", "other"] },
+          "text": { "type": "string", "minLength": 1, "maxLength": 1000 },
+          "due_date": { "anyOf": [{ "$ref": "common.schema.json#/$defs/LocalDate" }, { "type": "null" }] },
+          "confidence": { "$ref": "common.schema.json#/$defs/Confidence" }
+        }
+      }
+    },
+    "marks": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "title": "RecapMark",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["moment", "local_time"],
+        "properties": {
+          "moment": { "$ref": "common.schema.json#/$defs/MomentAlias" },
+          "local_time": { "$ref": "common.schema.json#/$defs/LocalTime" }
+        }
+      }
+    },
+    "stats": {
+      "title": "RecapStats",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["moments", "longest_moment_s", "meeting_s"],
+      "properties": {
+        "moments": { "type": "integer", "minimum": 0 },
+        "longest_moment_s": { "type": "integer", "minimum": 0 },
+        "meeting_s": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "preferences": {
+      "title": "RecapPreferences",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["not_important", "right", "counterpart_right"],
+      "properties": {
+        "not_important": { "type": "object", "maxProperties": 64, "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "right": { "type": "object", "maxProperties": 64, "additionalProperties": { "type": "integer", "minimum": 0 } },
+        "counterpart_right": { "type": "object", "maxProperties": 64, "additionalProperties": { "type": "integer", "minimum": 0 } }
+      }
+    },
+    "max_entries": { "type": "integer", "minimum": 1, "maximum": 10 }
+  }
+}

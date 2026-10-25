@@ -1,0 +1,11 @@
+{
+  "tasks": {
+    "gen": "deno run --allow-read=. --allow-write=../.. --allow-env scripts/generate.ts"
+  },
+  "imports": {
+    "quicktype-core": "npm:quicktype-core@23.2.6"
+  },
+  "fmt": {
+    "lineWidth": 120
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mona.app/contracts/telemetry_request.schema.json",
+  "title": "TelemetryRequest",
+  "description": "POST /v1/telemetry (spec §12.3, §15). Content-free; property keys are whitelisted per event name by the gateway.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "events"],
+  "properties": {
+    "schema_version": { "$ref": "common.schema.json#/$defs/SchemaVersion" },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "title": "TelemetryEvent",
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "props", "occurred_at"],
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,63}$" },
+          "props": {
+            "type": "object",
+            "maxProperties": 16,
+            "additionalProperties": { "type": ["string", "number", "boolean"], "maxLength": 64 }
+          },
+          "occurred_at": { "type": "integer", "description": "UTC epoch milliseconds" }
+        }
+      }
+    }
+  }
+}

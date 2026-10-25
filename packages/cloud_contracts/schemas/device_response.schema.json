@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mona.app/contracts/device_response.schema.json",
+  "title": "DeviceResponse",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["device_id"],
+  "properties": {
+    "device_id": { "type": "string", "format": "uuid" }
+  }
+}

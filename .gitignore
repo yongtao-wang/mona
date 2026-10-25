@@ -1,0 +1,17 @@
+# Dart / Flutter
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.iml
+.fvm/flutter_sdk
+
+# Deno / Node
+node_modules/
+deno.lock
+
+# Supabase local state
+backend/supabase/.temp/
+backend/supabase/.branches/
+
+.DS_Store

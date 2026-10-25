@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mona.app/contracts/device_request.schema.json",
+  "title": "DeviceRequest",
+  "description": "POST /v1/device (spec §12.4). Idempotent per (user, install_id).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "install_id", "platform", "app_version", "os_version"],
+  "properties": {
+    "schema_version": { "$ref": "common.schema.json#/$defs/SchemaVersion" },
+    "install_id": { "type": "string", "format": "uuid" },
+    "platform": { "title": "Platform", "type": "string", "enum": ["ios", "android", "web"] },
+    "app_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "os_version": { "type": "string", "minLength": 1, "maxLength": 32 },
+    "model": { "type": ["string", "null"], "maxLength": 64 }
+  }
+}

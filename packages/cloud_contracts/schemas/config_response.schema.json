@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://mona.app/contracts/config_response.schema.json",
+  "title": "ConfigResponse",
+  "description": "GET /v1/config (spec §12.5). analysis_enabled is the kill switch.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["min_app_version", "analysis_enabled", "recap_enabled", "prompt_versions", "max_body_kb"],
+  "properties": {
+    "min_app_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "analysis_enabled": { "type": "boolean" },
+    "recap_enabled": { "type": "boolean" },
+    "prompt_versions": {
+      "title": "PromptVersions",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "recap"],
+      "properties": {
+        "label": { "type": "string" },
+        "recap": { "type": "string" }
+      }
+    },
+    "max_body_kb": { "type": "integer", "minimum": 1 }
+  }
+}
