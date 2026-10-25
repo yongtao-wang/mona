@@ -44,6 +44,17 @@ Codename for the Day Recap App: an iPhone app (Android later) that records conve
 - Backlog: the repo's open GitHub issues (`gh issue list`). Add, close or drop one with the
   `backlog-gh` skill.
 
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in the repo's GitHub Issues (`yongtao-wang/mona`); cloud sessions use the REST API. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root, created when there is something to put in them. See `docs/agents/domain.md`.
+
 ## Docs
 
 - [docs/implementation-spec.md](docs/implementation-spec.md) — implementation spec
@@ -51,3 +62,4 @@ Codename for the Day Recap App: an iPhone app (Android later) that records conve
 - [docs/product/feature-deep-dive-and-dev-plan.md](docs/product/feature-deep-dive-and-dev-plan.md) — earlier research and dev plan
 - [docs/product/how-it-works-and-user-value.md](docs/product/how-it-works-and-user-value.md) — personas, a day with the app, recap rules
 - [docs/design/ui-design.md](docs/design/ui-design.md) — UI design brief
+- [docs/agents/](docs/agents/) — how the engineering skills use the issue tracker and domain docs
