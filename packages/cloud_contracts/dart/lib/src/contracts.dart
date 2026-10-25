@@ -13,7 +13,6 @@
 //     final recapResponse = recapResponseFromJson(jsonString);
 //     final telemetryRequest = telemetryRequestFromJson(jsonString);
 
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 ConfigResponse configResponseFromJson(String str) => ConfigResponse.fromJson(json.decode(str));
@@ -111,7 +110,7 @@ class PromptVersions {
 class DeviceRequest {
     final String appVersion;
     final String installId;
-    final String model;
+    final String? model;
     final String osVersion;
     final Platform platform;
     final int schemaVersion;
@@ -119,7 +118,7 @@ class DeviceRequest {
     DeviceRequest({
         required this.appVersion,
         required this.installId,
-        required this.model,
+        this.model,
         required this.osVersion,
         required this.platform,
         required this.schemaVersion,
@@ -292,7 +291,7 @@ class LabelMoment {
     final String localDate;
     final String localStart;
     final String ref;
-    final SceneHint sceneHint;
+    final SceneHint? sceneHint;
     final String tz;
 
     LabelMoment({
@@ -404,11 +403,11 @@ class LabelUtterance {
 
 class MomentLabelResponse {
     final List<LabelItem> items;
-    final Minutes minutes;
+    final Minutes? minutes;
     final String modelVersion;
     final SceneLabel scene;
     final String summary;
-    final String title;
+    final String? title;
     final Tone tone;
 
     MomentLabelResponse({
@@ -423,7 +422,7 @@ class MomentLabelResponse {
 
     factory MomentLabelResponse.fromJson(Map<String, dynamic> json) => MomentLabelResponse(
         items: List<LabelItem>.from(json["items"].map((x) => LabelItem.fromJson(x))),
-        minutes: Minutes.fromJson(json["minutes"]),
+        minutes: json["minutes"] == null ? null : Minutes.fromJson(json["minutes"]),
         modelVersion: json["model_version"],
         scene: SceneLabel.fromJson(json["scene"]),
         summary: json["summary"],
@@ -433,7 +432,7 @@ class MomentLabelResponse {
 
     Map<String, dynamic> toJson() => {
         "items": List<dynamic>.from(items.map((x) => x.toJson())),
-        "minutes": minutes.toJson(),
+        "minutes": minutes?.toJson(),
         "model_version": modelVersion,
         "scene": scene.toJson(),
         "summary": summary,
@@ -444,13 +443,13 @@ class MomentLabelResponse {
 
 class LabelItem {
     final double confidence;
-    final String counterpart;
-    final Due due;
+    final String? counterpart;
+    final Due? due;
     final String id;
-    final String owner;
+    final String? owner;
     final List<String> sources;
     final String text;
-    final Type type;
+    final ItemType type;
 
     LabelItem({
         required this.confidence,
@@ -466,28 +465,28 @@ class LabelItem {
     factory LabelItem.fromJson(Map<String, dynamic> json) => LabelItem(
         confidence: json["confidence"]?.toDouble(),
         counterpart: json["counterpart"],
-        due: Due.fromJson(json["due"]),
+        due: json["due"] == null ? null : Due.fromJson(json["due"]),
         id: json["id"],
         owner: json["owner"],
         sources: List<String>.from(json["sources"].map((x) => x)),
         text: json["text"],
-        type: typeValues.map[json["type"]]!,
+        type: itemTypeValues.map[json["type"]]!,
     );
 
     Map<String, dynamic> toJson() => {
         "confidence": confidence,
         "counterpart": counterpart,
-        "due": due.toJson(),
+        "due": due?.toJson(),
         "id": id,
         "owner": owner,
         "sources": List<dynamic>.from(sources.map((x) => x)),
         "text": text,
-        "type": typeValues.reverse[type],
+        "type": itemTypeValues.reverse[type],
     };
 }
 
 class Due {
-    final String date;
+    final String? date;
     final String phrase;
 
     Due({
@@ -506,23 +505,23 @@ class Due {
     };
 }
 
-enum Type {
+enum ItemType {
     DECISION,
     FACT,
     PROMISE,
     QUESTION
 }
 
-final typeValues = EnumValues({
-    "decision": Type.DECISION,
-    "fact": Type.FACT,
-    "promise": Type.PROMISE,
-    "question": Type.QUESTION
+final itemTypeValues = EnumValues({
+    "decision": ItemType.DECISION,
+    "fact": ItemType.FACT,
+    "promise": ItemType.PROMISE,
+    "question": ItemType.QUESTION
 });
 
 class Minutes {
     final List<String> decisions;
-    final String followUpDraft;
+    final String? followUpDraft;
     final List<String> openQuestions;
     final List<String> promises;
 
@@ -635,11 +634,11 @@ class RecapRequest {
 class RecapItem {
     final double confidence;
     final Direction direction;
-    final String dueDate;
+    final String? dueDate;
     final String moment;
     final String ref;
     final String text;
-    final Type type;
+    final ItemType type;
 
     RecapItem({
         required this.confidence,
@@ -658,7 +657,7 @@ class RecapItem {
         moment: json["moment"],
         ref: json["ref"],
         text: json["text"],
-        type: typeValues.map[json["type"]]!,
+        type: itemTypeValues.map[json["type"]]!,
     );
 
     Map<String, dynamic> toJson() => {
@@ -668,7 +667,7 @@ class RecapItem {
         "moment": moment,
         "ref": ref,
         "text": text,
-        "type": typeValues.reverse[type],
+        "type": itemTypeValues.reverse[type],
     };
 }
 
@@ -708,9 +707,9 @@ class RecapMoment {
     final int durationS;
     final String localStart;
     final String ref;
-    final String scene;
-    final String summary;
-    final String title;
+    final String? scene;
+    final String? summary;
+    final String? title;
 
     RecapMoment({
         required this.durationS,
@@ -789,8 +788,8 @@ class RecapStats {
 }
 
 class RecapResponse {
-    final String funLine;
-    final String highlight;
+    final String? funLine;
+    final String? highlight;
     final String modelVersion;
     final bool quietDay;
     final List<String> ranked;

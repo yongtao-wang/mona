@@ -11,7 +11,7 @@
     "UtteranceAlias": { "type": "string", "pattern": "^u\\d{1,5}$" },
     "ItemAlias": { "type": "string", "pattern": "^i\\d{1,4}$" },
     "SpeakerToken": { "type": "string", "pattern": "^(ME|S\\d{1,3}|P\\d{1,3})$" },
-    "ItemType": { "type": "string", "enum": ["promise", "decision", "fact", "question"] },
+    "ItemType": { "title": "ItemType", "type": "string", "enum": ["promise", "decision", "fact", "question"] },
     "Confidence": { "type": "number", "minimum": 0, "maximum": 1 },
     "ModelVersion": { "type": "string", "minLength": 1, "maxLength": 128 }
   }

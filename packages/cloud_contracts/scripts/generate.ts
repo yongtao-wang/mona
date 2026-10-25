@@ -44,7 +44,7 @@ async function generate(lang: "typescript" | "dart"): Promise<string> {
   data.addInput(input);
   const options: Record<string, string> = lang === "typescript"
     ? { "just-types": "true", "prefer-unions": "true", "prefer-types": "true" }
-    : { "null-safety": "true", "required-props": "true", "final-props": "true" };
+    : { "null-safety": "true", "final-props": "true" };
   const result = await quicktype({
     inputData: data,
     lang,

@@ -110,7 +110,7 @@ export type LabelItem = {
     owner:       null | string;
     sources:     string[];
     text:        string;
-    type:        Type;
+    type:        ItemType;
 }
 
 export type Due = {
@@ -118,7 +118,7 @@ export type Due = {
     phrase: string;
 }
 
-export type Type = "promise" | "decision" | "fact" | "question";
+export type ItemType = "promise" | "decision" | "fact" | "question";
 
 export type Minutes = {
     decisions:       string[];
@@ -156,7 +156,7 @@ export type RecapItem = {
     moment:     string;
     ref:        string;
     text:       string;
-    type:       Type;
+    type:       ItemType;
 }
 
 export type Direction = "by_user" | "to_user" | "other";

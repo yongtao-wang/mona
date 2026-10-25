@@ -43,6 +43,7 @@ export const schemas = {
         "pattern": "^(ME|S\\d{1,3}|P\\d{1,3})$"
       },
       "ItemType": {
+        "title": "ItemType",
         "type": "string",
         "enum": [
           "promise",
