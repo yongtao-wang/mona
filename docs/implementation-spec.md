@@ -8,7 +8,7 @@
 | Inputs | [PRD](product/prd.md) (2026-10-24), [Feature deep dive and dev plan](product/feature-deep-dive-and-dev-plan.md) (2026-10-20), [How it works and user value](product/how-it-works-and-user-value.md) (2026-10-24) |
 | Changes | v0.2 is a review pass over v0.1. Every finding and what changed is in [§24 Review log](#24-review-log-v02). |
 
-This document turns the PRD into something engineers can build from. It fixes the repository layout, the module boundaries, the on-device and cloud data contracts, the privacy rules as testable invariants, and the work plan for the first 11 weeks. Where it makes a choice the PRD leaves open, the choice is listed in [§21 Decisions](#21-decisions) so it can be challenged.
+This document turns the PRD into something engineers can build from. It fixes the repository layout, the module boundaries, the on-device and cloud data contracts, the privacy rules as testable invariants, and the work plan up to Gate B, estimated for agent-built code (§19.1). Where it makes a choice the PRD leaves open, the choice is listed in [§21 Decisions](#21-decisions) so it can be challenged.
 
 ---
 
@@ -45,8 +45,8 @@ This document turns the PRD into something engineers can build from. It fixes th
 
 ### 1.1 What this spec covers
 
-- **Phase 0, weeks 1 to 3:** the spikes that decide Gate A (8-hour capture, battery, speaker accuracy, Mandarin-English transcription, cost), plus the evaluation set.
-- **Phase 1, weeks 4 to 11, iOS only:** Day mode, Meeting Scene, speaker separation with "You", naming and fixes, item extraction, evening recap, morning nudge, consent card, privacy center, retention, export. Ends at Gate B with 30 alpha users.
+- **Phase 0, about 15 days:** the spikes that decide Gate A (8-hour capture, battery, speaker accuracy, Mandarin-English transcription, cost), plus the evaluation set.
+- **Phase 1, about 4 weeks after Gate A, iOS only:** Day mode, Meeting Scene, speaker separation with "You", naming and fixes, item extraction, evening recap, morning nudge, consent card, privacy center, retention, export. Ends at Gate B with 30 alpha users.
 - **Phases 2 and 3** (Trip, Show, reels, Ask, Android, Lecture, launch) are outlined only far enough that Phase 1 does not paint them into a corner: data model fields, interfaces and extension points exist from day one.
 
 ### 1.2 How conflicts between the source docs were resolved
@@ -57,8 +57,8 @@ The PRD (Oct 24) is newer than the dev plan (Oct 20) and wins wherever they diff
 | --- | --- | --- | --- |
 | App stack | Swift and SwiftUI, native iOS | Flutter with native modules for capture, speech and video | Flutter UI; capture, speech and media as native engines behind typed channels (D1, D2) |
 | Android timing | From Phase 3 | Android capture service in Phase 2 | Phase 2; Phase 1 keeps the Dart engine API platform-neutral |
-| Timeline | About 30 weeks, five phases | 34 weeks: Phases 0 to 3 plus v1.1, launch in week 26 | PRD timeline |
-| Team | Two engineers | Flutter, native, backend/ML engineers, part-time designer, product lead | PRD team; owners in §20 use these roles |
+| Timeline | About 30 weeks, five phases | 34 weeks: Phases 0 to 3 plus v1.1, launch in week 26 | PRD gates and their order; calendar re-estimated for agent-built code, set by device tests, user studies, review and counsel (§19.1). Gate B at about 6 weeks instead of 11. |
+| Team | Two engineers | Flutter, native, backend/ML engineers, part-time designer, product lead | Coding agents build; a device operator, the product lead, a part-time designer and counsel are the humans (§19.2) |
 | Backend | Postgres, object storage, queue, Python worker | Supabase auth, Postgres, edge functions as the gateway | Supabase; no server queue or worker in Phase 1 (gateway is synchronous; the retry queue lives on the phone, §8.8) |
 
 ### 1.3 Out of scope for Phases 0 and 1
@@ -1349,7 +1349,7 @@ Reachable in two taps from Today (PRD acceptance), tested by a widget test.
 
 ### 13.7 Published policies
 
-Before the external alpha (week 9): a public privacy policy (also required by TestFlight external testing) and a voice-data retention and deletion policy, as the PRD requires following BIPA's model. Both state what §7.5, §10.5 and §11.1 implement. Legal signs off.
+Before the external alpha (M4, §20): a public privacy policy (also required by TestFlight external testing) and a voice-data retention and deletion policy, as the PRD requires following BIPA's model. Both state what §7.5, §10.5 and §11.1 implement. Legal signs off.
 
 ---
 
@@ -1417,7 +1417,7 @@ A Supabase SQL view per metric feeds a simple internal dashboard; Gate B is read
 ### 16.1 Evaluation set
 
 - About 20 hours of real audio (PRD): meetings of 2 to 6 people, restaurants, lectures, Mandarin-English code-switching, plus far-field and earbuds variants. Recorded on the target phones in realistic placements (on the table, in a pocket, in hand), not on studio mics.
-- **Staged.** Hand-labeling 20 hours (verbatim transcripts, speaker turns, items) takes far more than three weeks of the team's time. Stage 1, by the end of week 3: about 5 hours that Gate A needs (2 to 4 person quiet rooms, code-switching, enrollment clips of the "users"). Stage 2, by week 7: the remaining 15 hours, transcribed by a vendor under NDA and reviewed internally.
+- **Staged, agent pre-labeled.** Agents draft every label (transcripts from the best available ASR, speaker turns from the offline diarizer, items from the large model) and humans correct the drafts in a correction tool, at about 2 to 4 hours per hour of audio. Drafts are never scored as references until a human has corrected them, or the eval would grade the models against themselves. Stage 1, inside Phase 0: about 5 hours that Gate A needs (2 to 4 person quiet rooms, code-switching, enrollment clips of the "users"). Stage 2, during Phase 1 and before Gate B: the remaining 15 hours, corrected by the team or a vendor under NDA.
 - Every participant signs a written recording and research consent; this matters because the eval set itself contains other people's voices (BIPA-style concerns apply to us too). The consent also covers sending pseudonymized transcripts to the LLM provider during item evaluation.
 - Audio is stored in a private, access-controlled bucket outside git. Git holds only `eval/manifests/*.jsonl` (file id, duration, scenario tags, number of speakers, languages) and the reference labels.
 - Reference labels: RTTM for speakers, verbatim transcripts with speaker turns, hand-labeled items (type, owner, counterpart, due date, source span), Scene labels per moment, and every person-name mention (for the pseudonymizer leak rate).
@@ -1454,7 +1454,7 @@ The dev build has an "eval mode": it replays an audio file through the real capt
 | Swift unit | Capture state machine (I1, native start gate), VAD gate (I7), timeline map, ADTS truncation recovery, journal replay, threshold gates (I12), Live Activity content has no text (I13) | `packages/*/ios/Tests` |
 | Integration (device) | Start → speak fixture → stop → minutes; Day → Meeting → Day switch; crash and replay; no non-self signature on disk (I5); playback gap | `app/integration_test` on a device farm or a dedicated test iPhone |
 | Contract | Gateway schemas: requests and responses generated from `cloud_contracts`, fuzzed; binary rejection (I3); citation check (I9); error contract; tier chosen by the server | `backend/supabase/tests` (Deno) |
-| Soak | 8-hour locked-screen capture with scripted interruptions (call, Siri, music app, route changes), the 8-hour Live Activity limit, background re-clusters | Manual-triggered, weekly in Phase 1 |
+| Soak | 8-hour locked-screen capture with scripted interruptions (call, Siri, music app, route changes), the 8-hour Live Activity limit, background re-clusters | Overnight on a device by the operator, for every build that touches capture or speech |
 | Eval | Gate suites on the evaluation set | `eval/`, on demand and before each gate |
 
 ### 17.2 CI (GitHub Actions)
@@ -1489,43 +1489,77 @@ Release builds (TestFlight) are cut from tags by a separate manual workflow with
 
 ## 19. Phase 0 plan
 
-Weeks 1 to 3. Each spike has an owner role, a deliverable and an exit criterion that feeds Gate A. Results go into `docs/phase0/` as short reports.
+### 19.1 How time is estimated
 
-| Spike | Owner | Question | Exit criterion |
-| --- | --- | --- | --- |
-| S1 Capture soak | Native | Does a user-started session survive 8 hours locked, with interruptions, at acceptable battery, with everything Phase 1 runs in the background (live ASR, live diarization, Day-mode re-clusters, gateway calls)? Does SpeechAnalyzer keep running locked? Do zones trigger within 1 minute? What happens at the Live Activity's 8-hour limit, and can the app restart the activity from the background? Can it resume after a `.shouldResume` interruption from the background? What are the warm and cold start latencies from the Lock Screen control, and the delay of a Live Activity button? | Total unplanned gaps under 1% of 8 hours; auto-resume after `.shouldResume` interruptions; drain under 20% for 8 hours on the 15 Pro; zone entry detected within 60 s in 9 of 10 trials; start under 1 s warm and cold; a documented 8-hour rollover behavior (D24) |
-| S2 Diarization | Backend/ML + Native | Which embedding model and thresholds meet the targets on device? How long does re-clustering take, and at what peak memory? Does the 24 kbps codec or the audio session mode cost accuracy? | DER under 20% on 2 to 4 person quiet rooms, on codec round-tripped audio; self-label at least 90%; 60-minute re-cluster under 60 s within the memory budget (§7.4) |
-| S3 Transcription | Native + Backend/ML | Does SpeechTranscriber support zh-TW with Traditional output? How does it handle Mandarin-English? Do contextual names help? Does Breeze-ASR-25 fit the overnight pass (size, memory, time, thermal, license)? | Live final latency p95 under 1.5 s; a chosen locale and code-switching strategy; Breeze MER at least 15% better than live, 1 hour refined within 3 hours without thermal throttling (or a documented fallback) |
-| S4 On-device vs cloud items | Backend/ML | Is Foundation Models close enough to the cloud for routine labeling, including in the background and in Traditional Chinese? How much do names leak past the pseudonymizer, and does an on-device name recognizer help? Where should `τ_uncertain` and `τ_nudge` sit? | Precision and recall side by side on labeled moments; pseudonymizer leak rate; calibrated thresholds; a recommendation for Phase 2 (a prerequisite for offline Trip, §8.3) |
-| S5 Cost | Backend/ML | What does a typical and a heavy user cost per month? Does thinking pay for itself? Is the small tier good enough for minutes? | Tokens and cost per day from concierge data; within the PRD unit-cost target or a plan to get there (§11.5) |
-| S6 Concierge recap and hand-made reels | Product lead | Do people open the recap and share reels? | Gate A habit criterion: half of concierge users open the recap 5+ days a week. Concierge audio is deleted after the study. |
-| S7 App Store posture | Native + Product | Will review accept background audio and background location as designed? | An external TestFlight build with the real purpose strings, both background modes, the Live Activity and the privacy manifest passes beta review |
-| S8 Evaluation set | Backend/ML + Product | Record and label the Stage 1 set (§16.1) | Stage 1 manifests and labels committed; audio in the private bucket; harness scores a baseline; Stage 2 vendor contracted |
-| S9 Legal kickoff | Product lead | Taiwan consent and biometric review started; model licenses reviewed | Counsel engaged; questions in §22 sent; every model in the manifest has a license that allows commercial use on device |
+Coding agents write the code, tests, prompts, harnesses, scoring scripts and spike reports, so build effort is estimated in **agent hours**, not engineer-weeks. Agent work runs in parallel streams (one per workstream) with CI on macOS runners. The calendar is set by what agents cannot speed up:
+
+| Pace-setter | Why agents can't shorten it | Typical duration |
+| --- | --- | --- |
+| Tests on a physical iPhone | Mic input, locked screen, background behavior, Live Activity and battery only exist on a device; an 8-hour soak takes 8 hours | Hours per run; days for a series |
+| People using the app | Habit metrics count days per week; real rooms and real speech | 2 weeks per study |
+| Human labels | References for the eval set must be checked by people, even when agents draft them | About 2 to 4 hours of correction per hour of audio |
+| App Store and TestFlight review | Apple's queue | 1 to 3 days per review |
+| Counsel, provider agreement | Third parties | Weeks; start on day 1 |
+| Human code review | Every merge has a human approver | Hours per day; the second bottleneck |
+
+Estimates below exclude human review time unless stated.
+
+### 19.2 Who does what
+
+| Role | Who | Does |
+| --- | --- | --- |
+| Build | Coding agents | All code, tests, prompts, eval pre-labels and scoring, spike reports, docs |
+| Device operator | One human engineer with a Mac, Xcode and the three test iPhones | Runs device builds, soak and battery tests, records eval audio, signs and uploads TestFlight builds; line-reviews native audio code |
+| Reviewer | The device operator plus the product lead | Approves every merge; line review for the privacy invariants, the pseudonymizer, gateway logging and native audio |
+| Product lead | Human | Concierge study, recruiting, interviews, legal, provider agreement |
+| Designer | Part-time human | Screens and copy, reviewed on agent-built prototypes |
+| Counsel | External | Consent, biometric, cross-border questions (§22) |
+
+**Make each device cycle count.** The device operator's time is the main bottleneck, so agents batch: one build carries several experiments behind debug flags, a scripted checklist tells the operator what to do (lock the phone, take a call, walk out of the zone), and the app exports structured logs at the end of the run for agents to analyze. Overnight runs are the default, so a day of agent work and a night of device time alternate.
+
+### 19.3 Spikes
+
+Results go into `docs/phase0/` as short reports, written by agents from the exported logs.
+
+| Spike | Agent build | Real-world time | Question | Exit criterion |
+| --- | --- | --- | --- | --- |
+| S1 Capture soak | 4 to 8 h: prototype app with capture, VAD, live ASR, live diarization, Live Activity, App Intents, guards, log export | 3 to 4 days: at least five 8-hour runs, fixes between runs | Does a user-started session survive 8 hours locked, with interruptions, at acceptable battery, with everything Phase 1 runs in the background (live ASR, live diarization, Day-mode re-clusters, gateway calls)? Does SpeechAnalyzer keep running locked? Do zones trigger within 1 minute? What happens at the Live Activity's 8-hour limit, and can the app restart the activity from the background? Can it resume after a `.shouldResume` interruption from the background? What are the warm and cold start latencies from the Lock Screen control, and the delay of a Live Activity button? | Total unplanned gaps under 1% of 8 hours; auto-resume after `.shouldResume` interruptions; drain under 20% for 8 hours on the 15 Pro; zone entry detected within 60 s in 9 of 10 trials; start under 1 s warm and cold; a documented 8-hour rollover behavior (D24) |
+| S2 Diarization | 3 to 6 h: harness on macOS, then device port | 1 day of device timing, once Stage 1 audio exists | Which embedding model and thresholds meet the targets on device? How long does re-clustering take, and at what peak memory? Does the 24 kbps codec or the audio session mode cost accuracy? | DER under 20% on 2 to 4 person quiet rooms, on codec round-tripped audio; self-label at least 90%; 60-minute re-cluster under 60 s within the memory budget (§7.4) |
+| S3 Transcription | 4 to 8 h: locale and code-switching tests, whisper.cpp build with Breeze | 1 to 2 nights of overnight refine runs | Does SpeechTranscriber support zh-TW with Traditional output? How does it handle Mandarin-English? Do contextual names help? Does Breeze-ASR-25 fit the overnight pass (size, memory, time, thermal, license)? | Live final latency p95 under 1.5 s; a chosen locale and code-switching strategy; Breeze MER at least 15% better than live, 1 hour refined within 3 hours without thermal throttling (or a documented fallback) |
+| S4 On-device vs cloud items | 2 to 4 h: prompts v0, Foundation Models bridge, comparison and leak-rate scripts | Minutes of LLM time; 1 device session for Foundation Models | Is Foundation Models close enough to the cloud for routine labeling, including in the background and in Traditional Chinese? How much do names leak past the pseudonymizer, and does an on-device name recognizer help? Where should `τ_uncertain` and `τ_nudge` sit? | Precision and recall side by side on labeled moments; pseudonymizer leak rate; calibrated thresholds; a recommendation for Phase 2 (a prerequisite for offline Trip, §8.3) |
+| S5 Cost | 1 to 2 h: cost model and token accounting over concierge data | First numbers after 3 days of concierge data; final at the study's end | What does a typical and a heavy user cost per month? Does thinking pay for itself? Is the small tier good enough for minutes? | Tokens and cost per day from concierge data; within the PRD unit-cost target or a plan to get there (§11.5) |
+| S6 Concierge recap and hand-made reels | 1 to 2 h: upload page, transcription, recap generation following the recap rules | **14 days** of participant use; recruiting starts on day 1 | Do people open the recap and share reels? | Gate A habit criterion: half of concierge users open the recap 5+ days a week. Concierge audio is deleted after the study. |
+| S7 App Store posture | 1 to 2 h: TestFlight shell with real purpose strings, both background modes, Live Activity, privacy manifest | 1 to 3 days of Beta App Review | Will review accept background audio and background location as designed? | The external TestFlight build passes beta review |
+| S8 Evaluation set | 2 to 4 h: pre-labeling pipeline (draft transcripts, draft speaker turns, draft items) and a correction tool | 2 to 3 days of recording sessions; 10 to 20 person-hours correcting the Stage 1 drafts | Record and label the Stage 1 set (§16.1) | Stage 1 manifests and labels committed; audio in the private bucket; harness scores a baseline |
+| S9 Legal kickoff | 1 h: question pack from §22, model license table from the manifest | Counsel's timeline (weeks); starts day 1 | Taiwan consent and biometric review started; model licenses reviewed | Counsel engaged; questions in §22 sent; every model in the manifest has a license that allows commercial use on device |
 
 Gate A passes when S1, S2 and S6 meet their criteria. S3's code-switching result decides whether Breeze is in Phase 1 or deferred with a documented accuracy gap.
 
-**Load on the native engineer.** S1, S2, S3 and S7 all need native work in three weeks. To keep S1 on track, S2 and S3 start on a Mac (sherpa-onnx and whisper.cpp run there) with the Backend/ML engineer and move to the phone in week 3, and the Flutter engineer builds the eval-mode export and the S7 TestFlight shell.
+**Calendar.** Agent build for all spikes is about 2 to 4 agent-days, done in the first 1 to 2 days with parallel streams. Gate A lands at about **day 15**, set by S6's 14 days of use; S1, S2, S3 and S8 finish inside that window. Phase 1 build starts as soon as S1 has a passing run, without waiting for Gate A, because capture is the riskiest code and the rest is cheap to redo if a gate fails. Alpha recruiting, counsel and the provider agreement start on day 1, because they gate the external alpha (§20), not Gate A.
 
 ---
 
 ## 20. Phase 1 plan
 
-Weeks 4 to 11, iOS only. Ends with 30 alpha users and Gate B (half open the recap 5+ days a week; under 8% of items wrong). To have two full weeks of alpha data by week 11, internal dogfooding starts in week 8 and the external alpha in week 9. Everything the alpha needs to produce Gate B data (the recap, feedback, the nudge) and everything trust requires (privacy center, retention, delete account) is in by week 8.
+iOS only. Ends with 30 alpha users and Gate B (half open the recap 5+ days a week; under 8% of items wrong). Estimates follow §19.1. Each milestone ships behind a device gate the operator runs; agents keep building the next milestone while a gate runs.
 
-| Weeks | Flutter engineer | Native engineer | Backend/ML engineer | Designer and product |
-| --- | --- | --- | --- | --- |
-| 4 to 5 | App skeleton with headless engine boot, layers, drift schema v1 with triggers and migrations, Today screen, onboarding shell, flags | Capture engine to production quality from the S1 spike (state machine, guards, journal, Live Activity with stale handling, App Intents, Scene switch), `native_core` | Supabase project, auth (Apple and email), device registration, schema and RLS, gateway skeleton with schema validation and the error contract, `cloud_contracts` codegen | Final Phase 1 screens; onboarding copy; consent card wording for legal; privacy policy draft |
-| 6 to 7 | Live session screen with lanes and "?", Meeting start flow with consent card, naming sheet; moment splitter; cloud job queue | Speech engine: live ASR with contextual names, live diarization with retirement, self-match, enrollment, session-close re-cluster | Pseudonymizer (Dart, with shared test vectors); `/v1/moments/label` with prompts v1, citation check, usage metering, refusal handling; `/v1/recap` v1 | Usability test of onboarding and meeting flow with 5 people |
-| 8 | Moment screen (transcript, items, playback), recap screen with feedback, morning nudge, retention job, privacy center core, delete account | Refine pass (if S3 passed), thermal handling, battery sampling, eval mode export | Telemetry endpoint and metric views, `/v1/config`, provider ZDR confirmed in writing | Internal dogfood; legal clearance for the external alpha; published policies (§13.7); alpha recruitment |
-| 9 | Timeline, fix tools (merge, split, reassign, relabel), minutes share | Soak test; crash and replay hardening | Prompt iteration from dogfood | External alpha opens |
-| 10 to 11 | Export everything, privacy center complete, offline recap, polish | Soak test each week; Live Activity edge cases | Prompt iteration from wrong-item feedback; cost report; eval suite run for Gate B | Weekly alpha interviews; Gate B readout |
+| Milestone | Agent build | Gate to move on | Calendar (from Gate A) |
+| --- | --- | --- | --- |
+| M1 Foundations | 1 to 2 agent-days in parallel: app skeleton with headless engine boot, drift schema v1 with triggers and migrations, Today screen, onboarding shell, flags; capture engine to production quality from the S1 spike (state machine, guards, journal, Live Activity with stale handling, App Intents, Scene switch, `native_core`); Supabase project, auth, device registration, schema and RLS, gateway skeleton with validation and the error contract, `cloud_contracts` codegen | CI green; capture smoke test on the 15 Pro; one 8-hour soak | Days 0 to 3 (overlaps the end of Phase 0) |
+| M2 Core loop | 2 to 3 agent-days: live session with lanes and "?", Meeting start with consent card, naming sheet, moment splitter, cloud job queue; speech engine (live ASR with contextual names, diarization with retirement, self-match, enrollment, re-cluster); pseudonymizer; `/v1/moments/label` and `/v1/recap` with prompts v1, citation check, metering, refusal handling; Moment screen, recap screen with feedback, morning nudge, retention job, privacy center core, delete account; telemetry and metric views, `/v1/config` | A scripted full day on a device (Day mode, a meeting, a pause zone, the recap, the nudge); an 8-hour soak; invariant tests I1 to I13 green | Days 3 to 7 |
+| M3 Dogfood | Fixes from dogfood, in hours each; refine pass if S3 passed; eval-mode export | At least 5 days of daily team use with no open invariant failure; legal clearance for the external alpha; ZDR confirmed in writing; published policies (§13.7); TestFlight external review passed | Days 7 to 14 |
+| M4 External alpha | Ships during the alpha, hours each: Timeline, fix tools (merge, split, reassign, relabel), minutes share, export everything, offline recap, polish; prompt iteration from wrong-item feedback | 14 days of alpha data | Days 14 to 28 |
+| Gate B readout | Eval suite on the current build, cost report, metric views | — | About day 28 |
 
-**If the Flutter engineer falls behind** (the column carries the most), cut in this order: PDF in the export (Markdown and audio are enough for the alpha; PDF is required by launch), relabel Scene, offline recap. The recap, feedback, nudge, privacy center and delete account do not move.
+**What sets this calendar.** About 5 agent-days of build fit inside the first week. The rest is real time: a week of dogfood and the alpha's two weeks of use. Gate B's metric counts days per week, and the first week of any new app is inflated by novelty, so two full weeks of alpha data is the minimum; it is not shortened. From the start of Phase 0, Gate B lands at about **6 weeks**, against 11 in the PRD's human-paced plan.
+
+**What can stretch it.** Legal clearance and the provider's ZDR agreement are the likeliest delays; they started on day 1 of Phase 0 (S9). If they are late, the external alpha waits and dogfood continues; the build does not. The second risk is device and review bandwidth: if the operator can't keep up with agent output, add a second device operator before adding agents.
+
+**Limits of agent-built code.** Agents cannot observe background iOS behavior, real rooms or battery directly, so every claim about them comes from a device run's exported logs, never from code reading. Native audio code, the privacy invariants, the pseudonymizer and gateway logging get human line review before merge.
 
 **Phase 1 definition of done:** every Phase 1 row in the appendix table is implemented with its acceptance test, invariants I1 to I13 have passing automated checks, the 8-hour soak passes on the 15 Pro, and the eval harness reports DER, self-label accuracy, item precision and the pseudonymizer leak rate on the current build.
 
-**Phase 2 preview (weeks 12 to 19):** Android capture service (foreground service of microphone type) behind the same Dart engine API; media engine for Moment mode, marks on video, beat-matched reels and templates; Trip with offline translation and on-device labeling (§8.3); Show detection; Ask your day with on-phone vector search; 200-user beta in Taiwan.
+**Phase 2 preview (after Gate B):** Android capture service (foreground service of microphone type) behind the same Dart engine API; media engine for Moment mode, marks on video, beat-matched reels and templates; Trip with offline translation and on-device labeling (§8.3); Show detection; Ask your day with on-phone vector search; 200-user beta in Taiwan. The same pace-setters apply: Android needs its own device operator and test phones, and Gate C's reel-sharing metric needs real shows.
 
 ---
 
@@ -1559,6 +1593,7 @@ Choices this spec makes that the source docs leave open or that resolve a confli
 | D22 | No sampling parameters; consistency from structured outputs, prompts and effort | The candidate models and current API version reject them | Provider change |
 | D23 | System contact picker instead of contacts permission | One fewer permission; shares only the chosen contact | — |
 | D24 | Live Activity 8-hour rollover needs a tap; otherwise capture pauses | ActivityKit generally refuses background starts; a stale indicator would break I2 | S1 shows a silent background rollover works |
+| D25 | Agents build; humans run devices, users, review and legal. Estimates in agent hours, calendar set by real-world pace-setters | Build time is no longer the constraint; device runs, user studies and third parties are | If device or review bandwidth becomes the bottleneck (§20) |
 
 ---
 
@@ -1570,6 +1605,7 @@ From the PRD (product decisions):
 - [ ] Taiwan as first market, and which languages beyond Traditional Chinese and English must work at launch.
 - [ ] Trip Scene in v1 or v1.1 if the team is smaller.
 - [ ] Pricing test range.
+- [ ] Re-plan the PRD's release calendar (launch in week 26) for agent-built code; Phases 2 and 3 are bound by device testing, the 200-user beta and store and legal review, not by build time.
 - [ ] Chime default where all-party consent applies.
 - [ ] Cloud LLM provider and zero-retention availability in our markets.
 
@@ -1584,7 +1620,7 @@ Raised by this spec (engineering decisions needing an owner):
 - [ ] Storage hard stop at 500 MB, thermal pause and the 6-hour paused timeout: confirm as product rules.
 - [ ] Whether alpha accounts need Sign in with Apple only, or email too; whether anonymous sign-in would be enough for the alpha.
 - [ ] Automatic return to Day mode after a Meeting (D17): product and legal confirm.
-- [ ] Shared C++ core for the platform-neutral audio logic (VAD gating, segment merging, timeline map, online clustering, journal format) before the Android port, instead of writing it twice in Swift and Kotlin. Decide by week 11.
+- [ ] Shared C++ core for the platform-neutral audio logic (VAD gating, segment merging, timeline map, online clustering, journal format) before the Android port, instead of writing it twice in Swift and Kotlin. Agents make the second implementation cheap to write but not to keep identical; decide before Phase 2.
 
 For legal (S9):
 
@@ -1642,7 +1678,7 @@ What a fresh review of v0.1 found and what changed. Severity: **High** would hav
 | R1 | High | §6.2 | Paused kept the engine running "to keep background runtime": the mic indicator stayed on in pause zones (at home), the battery pause saved little, and the app can't restart a stopped mic from the background anyway | Paused stops the engine; Resume comes from the Live Activity's `AudioRecordingIntent`, a notification or the app; Private keeps the engine so it can resume itself; 15% hard floor; 6-hour paused timeout (D16) |
 | R2 | High | §6.6 | Assumed the engine can end and restart the Live Activity at 8 hours while backgrounded; ActivityKit generally refuses background starts. A killed app also left the activity showing "Recording". | Stale date refreshed every minute; "Keep recording" prompt at 7 h 30 m, otherwise pause with reason `indicator`; S1 verifies (D24) |
 | R3 | High | §6.9 | No rule for a Meeting while Day mode records (Mia's 10:00 standup); one capture engine, two session types | Capture runs with back-to-back sessions, gapless Scene switch, `session.run_id` (D17) |
-| R4 | High | §20 | Recap screen, feedback and nudge were scheduled for weeks 10 to 11, after the alpha opens in week 9; Gate B measures recap opens. Pseudonymizer and moment splitter came after dogfood started. | Plan reordered: everything Gate B and trust need lands by week 8; cut order if the Flutter column slips |
+| R4 | High | §20 | Recap screen, feedback and nudge were scheduled for weeks 10 to 11, after the alpha opens in week 9; Gate B measures recap opens. Pseudonymizer and moment splitter came after dogfood started. | Plan reordered: everything Gate B and trust need lands before dogfood (M2) |
 | R5 | High | §11.5 | "Temperature 0 for labels, low for recaps": the candidate models accept only default sampling, and API version `2026-10-21` rejects the parameter outright | No sampling parameters; structured outputs, prompts and effort; eval repeats runs (D22) |
 | R6 | High | §8.4, §8.5, §12.2 | Tokens were per request, but the recap aggregates many moments; person tokens (`P2`) had no stored form, and `counterpart_speaker_id` could not hold a person | Request-scoped tokens with short id aliases, `{{per:id}}` placeholders, owner and counterpart person columns, day-scoped recap tokens (D18) |
 | R7 | High | §8.2 | Scene exclusion used the Scene label, which only the cloud produces, after the moment was sent; "summary only" would delete the lines items cite (I9) | On-device Scene hints for exclusion; summary-only keeps cited lines |
@@ -1667,7 +1703,7 @@ What a fresh review of v0.1 found and what changed. Severity: **High** would hav
 | R26 | Medium | §13.6 | A year of PDFs with an embedded CJK font per day; export stops when the user leaves the app | Monthly PDFs, `BGContinuedProcessingTask`, free-space check |
 | R27 | Medium | §10.7 | Data cannot move to a new phone in Phase 1 (backup exclusion, device-only key), and users were not told | Stated in onboarding and the privacy center |
 | R28 | Medium | §8.4 | Exact-match name replacement misses ASR homophones, given names and titles in Chinese | Generated variants, pinyin matching, measured leak rate |
-| R29 | Medium | §16.1, §19 | 20 hours of hand labels in three weeks is not feasible with this team | Staged eval set; vendor for Stage 2 |
+| R29 | Medium | §16.1, §19 | 20 hours of hand labels in three weeks is not feasible with this team | Staged eval set; agents draft labels, humans correct |
 | R30 | Medium | §11.5 | No handling of model refusals; fallback models could fall outside ZDR; no data-residency path; no cost check | Provider specifics table and cost estimate |
 | R31 | Low | I4 | Referred to `speaker.display_name`, which does not exist | Fixed |
 | R32 | Low | I6 | A foreign key cannot check that consent is granted | Insert and withdrawal triggers |
@@ -1683,3 +1719,4 @@ What a fresh review of v0.1 found and what changed. Severity: **High** would hav
 | R42 | Low | §13.7 | The PRD's published voice-data policy had no owner or date | Due before the external alpha |
 | R43 | Low | §8.3 | The PRD's offline Trip makes on-device labeling a Phase 2 prerequisite; Foundation Models may be limited in the background | Stated; S4 measures both |
 | R44 | Low | §7.2 | Breeze-ASR-25 delivery, storage, memory, license and checkpointing unspecified | Delivery and checkpointing specified; S3 and S9 cover the rest |
+| R45 | High | §19, §20 | (v0.2 follow-up) The plan was estimated in engineer-weeks for a human team; code is built by agents | Re-estimated in agent hours, with the calendar set by device tests, user studies, review and counsel; Gate B at about 6 weeks instead of 11 (D25) |
