@@ -14,11 +14,12 @@ This doc is the brief for anyone, human or agent, who designs screens for the ap
 
 ## 1. Direction
 
-**Media first, one button to shoot.** The app borrows its shape from TikTok and Instagram, because that is how its users already browse what happened:
+**Function first.** The app borrows patterns from TikTok and Instagram where they help people find and check what happened, and drops them where they don't. When a familiar pattern and a clear answer to "what do I need to know?" conflict, the clear answer wins.
 
 - **The day is a grid, like an Instagram profile.** Today is a 3-column grid of moment tiles, newest first, so the whole day is visible at once. A vertical one-at-a-time feed was tried and dropped: people want to scan several moments, not swipe through each.
 - **One concise record button**, centered in the bottom bar (TikTok's create button), opens the shooting screen. Shooting itself has one large round button with modes switched by swiping (Audio / Video / Meeting).
-- **The recap reads like Instagram stories:** one full-screen card per item, progress bars on top, tap to advance.
+- **The recap is one page you scan in about a minute**, not a sequence of cards. Everything is visible at once, in value order (promises by you, promises to you, decisions, things to remember, open questions, the highlight), with the most important line first and a count row that jumps to each section. Each item carries its due date, who, its source (tap to hear it) and the three feedback buttons in place. An Instagram-stories version (one card per item) was tried and dropped: it hid the overview and made checking ten items take ten taps.
+- **No social layer.** Sharing between users is not planned, so there are no avatars of other people, stories rows, followers or likes. People appear only as speaker names inside moments. Sharing means exporting text (minutes, the recap) to other apps.
 - **Audio moments still look like media.** Most moments have no video, so a tile or card shows the key quote in large type on a Scene-colored ground, with a waveform or duration. Video tiles show the clip.
 
 Product principles from the PRD still hold and override style:
@@ -92,14 +93,15 @@ Each is drawn on the canvas already; reuse it as it is.
 | --- | --- | --- |
 | State pill | Today, Live meeting | Top left; tap opens the live session. Always visible while capturing. |
 | Bottom bar | Today | Five slots: 今天, 日曆, record button, 回顧, 我. The record button is a white rounded rectangle (52 × 40) with a `rec` dot, label-free; `aria-label="Start shooting"`. |
-| Highlights row | Today | Story circles (62 px): tonight's recap, meetings, promises, marked. Ring color = what it opens. |
 | View tabs | Today | Grid, items list, marked. Active tab: white icon and 2 px underline. |
 | Moment tile | Today | 3 columns, 162 px tall, Scene ground. Top: type icon (waveform or play) and duration. Bottom: quote (2 lines, bold 13) and meta: time, item-count badge, mark star. Unanalyzed moments show their quote at 60% opacity. Every tile is one button whose accessible name is time + quote. |
 | Record button (large) | Shoot | 76 px: 5 px white ring, `rec` fill. Becomes a `rec` rounded square while recording (stop). |
 | Mode switcher | Shoot | Text tabs above the record button: 音訊, 影片, 會議. Active is white, others `text-2`. Meeting opens the consent card first (I10). |
 | Round action button | Shoot, Live meeting | 44–52 px, `surface` or `overlay`, icon plus a label under it when there is room. |
 | Transcript line | Live meeting | 4 px speaker-colored bar, speaker name in its color, text 18 px. Older lines fade. Uncertain speaker: name followed by " ?". |
-| Story card | Recap | Progress segments on top, section label in `promise` caps, the item in 36 px bold, chips for due date and reminder, a source card that plays the original line, three feedback buttons (對, 錯, 不重要). |
+| Recap summary card | Recap | Top of the page: the day's most important line in 18 px, then a 4-up count row (承諾, 決定, 記住, 問題) whose cells jump to their sections. |
+| Recap item | Recap | `#15151C` card: the item in 16 px semibold; chips for due date (`promise` on `#2A1608`), who, and "? 說話者不確定" when uncertain; a source link (▶ moment and time) on the left and the feedback buttons on the right: ✓ (white fill when chosen), ✗, 不重要, each 44 px tall. |
+| Section header | Recap | Section name in 13 px bold caps in its section color, count on the right. Colors: promises `promise`, decisions `#5B8CFF`, remember `#7ED6C1`, questions `#C9A6FF`, highlight `mark`. |
 
 ## 5. Rules every screen keeps
 
@@ -122,14 +124,14 @@ Status: **done** (on the canvas, reviewed by the user), **draft** (on the canvas
 | 1 | Today grid | `Main.dc.html` | §5.4 | draft | — | Replaced the vertical feed after review |
 | 2 | Shoot | `Capture.dc.html` | §6.3, PRD J4 | draft | — | Show prompt chip, mark button |
 | 3 | Live meeting | `Meeting.dc.html` | §5.4, §7.6 | draft | — | Stop = make minutes |
-| 4 | Evening recap (story) | `Recap.dc.html` | §9.3, §9.5 | draft | — | One card shown; needs the other sections and the quiet-day card |
+| 4 | Evening recap | `Recap.dc.html` | §9.3, §9.5 | draft | — | Rebuilt as one scannable page after review (the stories version hid the overview); 390 × 1560 to show the full scroll |
 | 5 | Moment detail | `Moment.dc.html` | §5.4, §8.7 | open | | What a tile opens: media or quote on top, transcript by speaker, items, playback, fix tools (merge, split, reassign, relabel), delete |
 | 6 | Items list tab | `Items.dc.html` | §8.5 | open | | Today's second tab: promises by you, to you, decisions, facts, questions; due dates; "?" items |
 | 7 | Day-mode recording | `Recording.dc.html` | §6.2 | open | | Audio-only live view outside meetings: pill, live captions, pause, private, mark, stop |
 | 8 | Paused and private states | `States.dc.html` | §6.2, §6.5 | open | | Pill and live-view variants for zone, battery, interruption, private-until |
 | 9 | Consent card | `Consent.dc.html` | §13.1 | open | | Full-screen, can be turned toward the room; chime toggle; "Start" |
 | 10 | Name speakers sheet | `NameSpeakers.dc.html` | §5.4 | open | | "Who is Speaker B?": attendees, recent names, system contact picker; plays a sample line |
-| 11 | Recap: other cards | `RecapCards.dc.html` | §9.3, §9.6 | open | | Decision, remember, question, highlight (marked clip), fun line, quiet day, offline basic recap, end card |
+| 11 | Recap: other states | `RecapStates.dc.html` | §9.3, §9.6 | open | | Quiet day (few items, says so), offline basic recap, generating (skeleton, under 30 s), an item marked wrong (hidden, with "wrong speaker" shortcut), adding a missed promise |
 | 12 | Calendar (past days) | `Calendar.dc.html` | §5.4 Timeline | open | | Second tab of the bottom bar: month view, each day a thumbnail of its grid |
 | 13 | Onboarding and "This is me" | `Onboarding*.dc.html` | §5.4, §7.7, §13.3 | open | | Scenes picker, what is recorded, mic, consent and enrollment, home zone (skippable), recap time, demo |
 | 14 | Privacy center | `Privacy.dc.html` | §13.5 | open | | Two taps from Today (via 我) |
@@ -155,4 +157,5 @@ Don't change another owner's screen; leave a note in its row instead.
 - [ ] With the grid on Today, does the bottom bar still need a separate "Timeline"? This draft turned that slot into a calendar of past days.
 - [ ] What does a tile open: the moment detail directly, or a full-screen viewer (swipe between moments, like opening a post on a profile) with the detail below?
 - [ ] Are video tiles shown in the same grid as audio moments, or does the Show Scene get its own reel row?
+- [ ] Should the recap's top line be written by the model ("the most important thing today") or picked by a rule (the earliest-due promise)?
 - [ ] App icon, name and brand: blocked on the product name (PRD open question).

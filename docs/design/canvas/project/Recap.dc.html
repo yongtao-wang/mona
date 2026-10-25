@@ -15,61 +15,133 @@ a{color:#FFFFFF}a:hover{color:#D9D9DE}
 button{font-family:inherit;cursor:pointer}
 </style>
 </helmet>
-<div style="width: 390px; height: 844px; position: relative; overflow: hidden; background: #3A2416; color: #FFFFFF; font-family: Inter, 'Noto Sans TC', system-ui, sans-serif">
+<div style="width: 390px; min-height: 1560px; background: #0B0B0F; color: #FFFFFF; font-family: Inter, 'Noto Sans TC', system-ui, sans-serif; padding: 58px 16px 48px; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px">
 
-  <div style="position: absolute; left: 0; top: 0; width: 390px; padding: 54px 12px 0; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
-    <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px">
-      <sc-for list="{{segments}}" as="s" hint-placeholder-count="7">
-        <div style="height: 3px; border-radius: 2px; background: {{s.color}}"></div>
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <a href="Main.dc.html" aria-label="Back to Today" style="width: 40px; height: 40px; border-radius: 20px; background: #1A1A22; display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>
+    </a>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 2px">
+      <div style="font-size: 17px; font-weight: 700">今晚的回顧</div>
+      <div style="font-size: 12px; color: #A8A8B3">10/27 週二 · 約 1 分鐘</div>
+    </div>
+    <button aria-label="Share recap as text" style="width: 40px; height: 40px; border: 0; border-radius: 20px; background: #1A1A22; color: #FFFFFF; display: flex; align-items: center; justify-content: center">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 3v13M7 8l5-5 5 5"></path></svg>
+    </button>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 16px; background: #1A1A22">
+    <div style="font-size: 18px; line-height: 1.45; font-weight: 600">最要緊的：週四前要把 spec 草稿寄給 Kevin。</div>
+    <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+      <sc-for list="{{jump}}" as="j" hint-placeholder-count="4">
+        <a href="#{{j.id}}" style="display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border-radius: 10px; background: #0B0B0F; text-decoration: none">
+          <span style="font-size: 18px; font-weight: 700; color: {{j.color}}">{{j.n}}</span>
+          <span style="font-size: 11px; color: #A8A8B3">{{j.label}}</span>
+        </a>
       </sc-for>
     </div>
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0 4px">
-      <div style="display: flex; flex-direction: column; gap: 2px">
-        <div style="font-size: 15px; font-weight: 700">今晚的回顧</div>
-        <div style="font-size: 12px; color: #E9D3C2">10/27 週二 · 2 / 7</div>
-      </div>
-      <a href="Main.dc.html" aria-label="Close recap" style="width: 40px; height: 40px; border-radius: 20px; background: rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
-      </a>
-    </div>
   </div>
 
-  <div style="position: absolute; left: 28px; top: 230px; width: 334px; display: flex; flex-direction: column; gap: 20px">
-    <div style="font-size: 13px; font-weight: 700; letter-spacing: 0.08em; color: #FFB37A">你答應的 · YOU PROMISED</div>
-    <div style="font-size: 36px; line-height: 1.25; font-weight: 700; letter-spacing: -0.01em">週四前把 spec 草稿寄給 Kevin</div>
-    <div style="display: flex; gap: 8px">
-      <div style="height: 30px; padding: 0 12px; border-radius: 15px; background: rgba(0,0,0,0.3); display: flex; align-items: center; font-size: 13px; font-weight: 600">到期 週四 10/29</div>
-      <div style="height: 30px; padding: 0 12px; border-radius: 15px; background: rgba(0,0,0,0.3); display: flex; align-items: center; font-size: 13px">明早 08:30 提醒</div>
-    </div>
-    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px; background: rgba(0,0,0,0.3); text-decoration: none">
-      <span style="width: 40px; height: 40px; border-radius: 20px; background: #FFFFFF; color: #3A2416; display: flex; align-items: center; justify-content: center; flex-shrink: 0"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg></span>
-      <span style="display: flex; flex-direction: column; gap: 2px">
-        <span style="font-size: 14px">「我禮拜四前把 spec 草稿寄給你。」</span>
-        <span style="font-size: 12px; color: #E9D3C2">供應商通話 · 14:02 · 聽原話</span>
+  <sc-for list="{{sections}}" as="s" hint-placeholder-count="5">
+    <section id="{{s.id}}" style="display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <h2 style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: {{s.color}}">{{s.title}}</h2>
+        <span style="font-size: 12px; color: #A8A8B3">{{s.count}}</span>
+      </div>
+      <sc-for list="{{s.items}}" as="it" hint-placeholder-count="2">
+        <div style="display: flex; flex-direction: column; gap: 8px; padding: 14px 14px 8px; border-radius: 14px; background: #15151C">
+          <div style="font-size: 16px; line-height: 1.45; font-weight: 600">{{it.text}}</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 12px">
+            <sc-if value="{{it.due}}" hint-placeholder-val="{{true}}">
+              <span style="padding: 3px 8px; border-radius: 8px; background: #2A1608; color: #FFB37A; font-weight: 600">{{it.due}}</span>
+            </sc-if>
+            <sc-if value="{{it.who}}" hint-placeholder-val="{{false}}">
+              <span style="padding: 3px 8px; border-radius: 8px; background: #23232B; color: #D5D5DC">{{it.who}}</span>
+            </sc-if>
+            <sc-if value="{{it.uncertain}}" hint-placeholder-val="{{false}}">
+              <span style="padding: 3px 8px; border-radius: 8px; background: #23232B; color: #D5D5DC">? 說話者不確定</span>
+            </sc-if>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <a href="Main.dc.html" style="display: flex; align-items: center; gap: 6px; height: 44px; text-decoration: none; font-size: 12px; color: #A8A8B3">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+              {{it.src}}
+            </a>
+            <div style="display: flex; gap: 2px">
+              <button aria-label="Right" aria-pressed="{{it.right}}" style="width: 44px; height: 44px; border: 0; border-radius: 22px; background: {{it.rightBg}}; color: {{it.rightFg}}; display: flex; align-items: center; justify-content: center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>
+              </button>
+              <button aria-label="Wrong" style="width: 44px; height: 44px; border: 0; border-radius: 22px; background: transparent; color: #A8A8B3; display: flex; align-items: center; justify-content: center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+              </button>
+              <button style="height: 44px; padding: 0 10px; border: 0; border-radius: 22px; background: transparent; color: #A8A8B3; font-size: 12px">不重要</button>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </section>
+  </sc-for>
+
+  <section id="highlight" style="display: flex; flex-direction: column; gap: 10px">
+    <h2 style="margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.06em; color: #FFD66B">今天的亮點</h2>
+    <a href="Main.dc.html" style="display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 14px; background: #15151C; text-decoration: none">
+      <span style="width: 64px; height: 80px; border-radius: 10px; background: #2A1A3A; display: flex; align-items: center; justify-content: center; flex-shrink: 0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg>
+      </span>
+      <span style="display: flex; flex-direction: column; gap: 4px">
+        <span style="font-size: 15px; font-weight: 600">你標記的演出片段</span>
+        <span style="font-size: 12px; color: #A8A8B3">20:41 · 0:18</span>
       </span>
     </a>
-  </div>
+    <div style="font-size: 14px; color: #D5D5DC">最長的對話：午餐，52 分鐘。</div>
+  </section>
 
-  <div style="position: absolute; left: 0; bottom: 40px; width: 390px; padding: 0 20px; box-sizing: border-box; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
-    <button style="height: 52px; border: 0; border-radius: 26px; background: #FFFFFF; color: #3A2416; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg>對
-    </button>
-    <button style="height: 52px; border: 0; border-radius: 26px; background: rgba(0,0,0,0.35); color: #FFFFFF; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 6px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>錯
-    </button>
-    <button style="height: 52px; border: 0; border-radius: 26px; background: rgba(0,0,0,0.35); color: #FFFFFF; font-size: 15px; font-weight: 600">不重要</button>
+  <div style="display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 8px">
+    <div style="font-size: 13px; color: #A8A8B3">今天就這些。</div>
+    <button style="height: 44px; padding: 0 18px; border: 1px solid #23232B; border-radius: 22px; background: transparent; color: #FFFFFF; font-size: 14px">＋ 漏了一個承諾？</button>
   </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1560}}'>
 class Component extends DCLogic {
   renderVals() {
-    var done = 2;
-    var segs = [];
-    for (var i = 0; i < 7; i++) {
-      segs.push({ color: i < done ? '#FFFFFF' : 'rgba(255,255,255,0.3)' });
+    function fb(items) {
+      return items.map(function (it) {
+        return Object.assign({ due: '', who: '', uncertain: false, right: false }, it, {
+          rightBg: it.right ? '#FFFFFF' : 'transparent',
+          rightFg: it.right ? '#0B0B0F' : '#A8A8B3'
+        });
+      });
     }
-    return { segments: segs };
+    var sections = [
+      { id: 'by-you', title: '你答應的', color: '#FFB37A', items: fb([
+        { text: '把 spec 草稿寄給 Kevin', due: '週四 10/29', src: '供應商通話 14:02', right: true },
+        { text: '打給銀行', due: '明天 10/28', src: '語音筆記 09:40' }
+      ]) },
+      { id: 'to-you', title: '別人答應你的', color: '#FFB37A', items: fb([
+        { text: '下週一前回覆報價', who: 'Kevin', due: '週一 11/2', src: '供應商通話 14:31' }
+      ]) },
+      { id: 'decisions', title: '決定', color: '#5B8CFF', items: fb([
+        { text: 'API 先照 v2 走，不再修改', who: '怡君', src: 'Q4 規格討論 10:12' }
+      ]) },
+      { id: 'remember', title: '記住的', color: '#7ED6C1', items: fb([
+        { text: '朋友換到新公司，下個月開始上班', src: '午餐 12:48' },
+        { text: '推薦的書：《原子習慣》', src: '午餐 13:05' }
+      ]) },
+      { id: 'questions', title: '還沒回答的問題', color: '#C9A6FF', items: fb([
+        { text: 'pricing 由誰負責？', uncertain: true, src: 'Q4 規格討論 10:21' }
+      ]) }
+    ];
+    sections.forEach(function (s) { s.count = s.items.length + ' 項'; });
+    return {
+      sections: sections,
+      jump: [
+        { id: 'by-you', n: 3, label: '承諾', color: '#FFB37A' },
+        { id: 'decisions', n: 1, label: '決定', color: '#5B8CFF' },
+        { id: 'remember', n: 2, label: '記住', color: '#7ED6C1' },
+        { id: 'questions', n: 1, label: '問題', color: '#C9A6FF' }
+      ]
+    };
   }
 }
 </script>
