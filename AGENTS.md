@@ -10,7 +10,7 @@ Toolchains: Flutter as pinned in `.fvmrc`, Deno 2. CI runs the same steps (`.git
 | --- | --- | --- |
 | `app/` | `flutter pub get`, `dart run build_runner build` | Dependencies; drift code (`lib/data/database.g.dart`) |
 | `app/` | `flutter analyze`, `dart format lib test`, `flutter test` | Lint, format, unit, DB and widget tests (SQLCipher in-process) |
-| `app/` | `./tool/fetch_web_assets.sh`, then `flutter run -d web-server --dart-define=LOCALE=zh_Hant_TW` | Web dev preview with the Mia sample day (D26) |
+| `app/` | `./tool/fetch_web_assets.sh`, then `flutter run -d web-server` | Web dev preview with the Mia sample day (D26); English unless the browser is Chinese, or force with `--dart-define=LOCALE=zh_Hant_TW` |
 | `backend/supabase/` | `deno fmt --check`, `deno lint`, `deno task check`, `deno task test` | Gateway tests and migration tests on PGlite |
 | `backend/` | `supabase db start`, `supabase db lint` | Migrations on a local Supabase (needs Docker) |
 | `packages/cloud_contracts/` | `deno task gen` | Regenerate TS and Dart types after a schema change; commit the output |

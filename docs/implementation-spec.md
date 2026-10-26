@@ -275,7 +275,7 @@ abstract class EngineEvents {
 
 ### 5.5 Localization and accessibility
 
-- UI strings in ARB files from day one: `zh-Hant-TW` and `en`. The Live Activity, notifications and App Intent titles are localized in the native targets with the same keys.
+- UI strings in ARB files from day one: `en` (the template and the fallback for any unsupported language) and `zh-Hant-TW` (D30). The app follows the device language. The Live Activity, notifications and App Intent titles are localized in the native targets with the same keys.
 - Dynamic Type: all screens are tested at the largest accessibility text size; the transcript view reflows, never truncates.
 - VoiceOver: the state pill announces state changes ("Recording", "Paused, home", "Private until 14:30"); speaker lanes are announced by speaker name, not color; "?" is read as "speaker uncertain".
 - Colors for the three capture states also differ in shape or label, so they never rely on color alone.
@@ -403,7 +403,7 @@ Swift package inside `packages/speech_engine/ios`. Consumes 16 kHz speech frames
 
 ### 7.1 Live transcription
 
-- **Primary:** `SpeechAnalyzer` with `SpeechTranscriber` (iOS 26), streaming volatile and final results with audio time ranges, converted to session time through the timeline map (§6.4). Locale from the user's language settings: `zh-TW` and `en-US` for the Taiwan alpha.
+- **Primary:** `SpeechAnalyzer` with `SpeechTranscriber` (iOS 26), streaming volatile and final results with audio time ranges, converted to session time through the timeline map (§6.4). Locale from the user's language settings: `en-US` and `zh-TW` (D30).
 - **Locale check.** S3 confirms that `SpeechTranscriber.supportedLocales` includes Mandarin (Taiwan) with Traditional Chinese output. If only `zh-CN` is offered, the engine either converts Simplified to Traditional with Taiwan phrasing (OpenCC `s2twp`, on device) or uses `DictationTranscriber` for `zh-TW`, whichever scores better on the eval set.
 - **Code-switching:** how SpeechTranscriber handles Mandarin-English in one utterance is the first question for spike S3. Mixing in Taiwan is mostly inside sentences ("我們明天要 sync 一下 spec"), so per-segment language choice only helps segment-level switches. Candidates, in order of preference: (a) one `zh-TW` transcriber if it keeps English words acceptably; (b) per-segment language ID (Whisper-tiny LID via sherpa-onnx) choosing the transcriber per VAD segment; (c) a Whisper-family model via sherpa-onnx for mixed segments.
 - **Contextual names.** The transcriber's analysis context gets contextual strings: calendar attendee names for the session, `person` display names and aliases, and the user's own name (`setSessionHints`). This raises name accuracy, which the pseudonymizer depends on (§8.4). The P1 custom-vocabulary feature extends the same list.
@@ -1605,6 +1605,7 @@ Choices this spec makes that the source docs leave open or that resolve a confli
 | D27 | Server migrations are tested on PGlite (Postgres in WASM) with a small `auth` stand-in, and on a local Supabase in CI | Cloud agent containers have no Docker; PGlite still runs the real SQL, RLS and triggers | If a migration needs an extension PGlite lacks |
 | D28 | `cloud_contracts` generates TypeScript and Dart types with quicktype, and bundles the schemas for the gateway's Ajv validator | One generator for both languages; the gateway validates against the same files | If generated Dart becomes awkward enough to hand-write |
 | D29 | The gateway verifies JWTs itself (`verify_jwt = false` on the function) | So a bad token gets the §12.7 error body instead of the platform's | — |
+| D30 | English-first UI: English is the default and fallback language, Traditional Chinese the second. North America is a target market alongside Taiwan | Product direction (2026-10-26); the PRD still says "Taiwan first" and is updated at its source by its owner | Launch order decided (§22) |
 
 ---
 
@@ -1613,7 +1614,7 @@ Choices this spec makes that the source docs leave open or that resolve a confli
 From the PRD (product decisions):
 
 - [ ] Product name; `mona` is the repository codename only.
-- [ ] Taiwan as first market, and which languages beyond Traditional Chinese and English must work at launch.
+- [ ] Launch order between North America and Taiwan (D30 makes the UI English-first; the PRD still says Taiwan first), and which languages beyond English and Traditional Chinese must work at launch.
 - [ ] Trip Scene in v1 or v1.1 if the team is smaller.
 - [ ] Pricing test range.
 - [ ] Re-plan the PRD's release calendar (launch in week 26) for agent-built code; Phases 2 and 3 are bound by device testing, the 200-user beta and store and legal review, not by build time.

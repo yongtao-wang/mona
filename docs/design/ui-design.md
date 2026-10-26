@@ -37,7 +37,7 @@ Product principles from the PRD still hold and override style:
 - iPhone, 390 × 844 artboards (one per screen), corner radius 44 on the canvas.
 - Leave the top 58 px for the system status area and the bottom 34 px for the home indicator; never draw a fake status bar.
 - Dark UI only in Phase 1. A light theme is not planned.
-- Copy language: Traditional Chinese (`lang="zh-Hant"`), with English mixed in where people actually say it ("spec", "sync"). Every string will move to ARB files (spec §5.5), so keep copy short and literal.
+- Copy language: English first, Traditional Chinese (`lang="zh-Hant"`) second (spec D30). The app follows the device language and falls back to English. Draw new artboards in English; the existing artboards are in Chinese until redrawn. Every string lives in ARB files (spec §5.5), so keep copy short and literal, and check that the longer language still fits.
 
 ## 3. Tokens
 

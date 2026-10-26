@@ -20,10 +20,22 @@ void main() {
     expect(today.tiles.first.marked, isTrue);
 
     final meeting = today.tiles.firstWhere((t) => t.scene == 'meeting');
-    expect((meeting.quote, meeting.itemCount, meeting.duration), ('API 先照 v2 走', 3, const Duration(minutes: 24)));
+    expect(
+      (meeting.quote, meeting.itemCount, meeting.duration),
+      ('API stays on v2 for now', 3, const Duration(minutes: 24)),
+    );
 
     final commute = today.tiles.last;
     expect((commute.scene, commute.analyzed, commute.quote), ('commute', false, null));
+  });
+
+  test('a zh device gets the Traditional Chinese sample day', () async {
+    final db = openTestDb();
+    addTearDown(db.close);
+    final clock = Clock.fixed(DateTime(2026, 10, 27, 21, 30));
+    await SampleDay(db, clock, languageCode: 'zh').seedIfEmpty();
+    final today = await TodayQuery(db, clock).watch().first;
+    expect(today.tiles.map((t) => t.quote), contains('API 先照 v2 走'));
   });
 
   test('moments from yesterday are not on Today', () async {

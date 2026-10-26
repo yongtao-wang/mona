@@ -34,12 +34,21 @@ class MomentTileView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const MonaIconView(MonaIcon.waveform, size: 16, color: MonaColors.text),
-                    Text(l.durationMinutes(minutes), style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
-                  ],
+                // Wrap, not Row: at large text sizes the duration moves under the icon (§5.5).
+                SizedBox(
+                  width: double.infinity,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
+                    children: [
+                      const MonaIconView(MonaIcon.waveform, size: 16, color: MonaColors.text),
+                      Text(
+                        l.durationMinutes(minutes),
+                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

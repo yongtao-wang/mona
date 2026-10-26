@@ -255,7 +255,7 @@ abstract class AppLocalizations {
   /// No description provided for @itemCount.
   ///
   /// In en, this message translates to:
-  /// **'{count} items'**
+  /// **'{count, plural, =1{1 item} other{{count} items}}'**
   String itemCount(int count);
 
   /// No description provided for @notAnalyzed.

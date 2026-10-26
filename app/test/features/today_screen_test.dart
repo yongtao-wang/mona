@@ -33,7 +33,7 @@ class Harness {
 Future<Harness> pumpApp(
   WidgetTester tester,
   List<Harness> harness, {
-  Locale locale = const Locale('zh'),
+  Locale locale = const Locale('en'),
   bool sampleDay = true,
   bool liveActivities = true,
   double textScale = 1,
@@ -50,6 +50,7 @@ Future<Harness> pumpApp(
     engine: engine,
     clock: Clock.fixed(now),
     sampleDay: sampleDay,
+    language: locale.languageCode,
   );
   await tester.pumpWidget(
     ProviderScope(
@@ -84,32 +85,43 @@ void appTest(String description, Future<void> Function(WidgetTester tester, List
 void main() {
   appTest('Today shows the sample day: stats, tiles and the idle pill', (tester, harness) async {
     await pumpApp(tester, harness);
-    expect(find.text('段時刻'), findsOneWidget);
+    expect(find.text('moments'), findsOneWidget);
     expect(find.text('8'), findsOneWidget); // moments
     expect(find.text('3'), findsOneWidget); // promises
+    expect(find.text('API stays on v2 for now'), findsOneWidget);
+    expect(find.text('Commute · not analyzed'), findsNWidgets(2));
+    expect(find.text('Not recording'), findsOneWidget);
+    expect(find.text('Tue 10/27'), findsOneWidget);
+    expect(find.text('1 item'), findsNWidgets(2));
+    expect(find.text('3 items'), findsOneWidget);
+    expect(find.bySemanticsLabel('10:00 API stays on v2 for now'), findsOneWidget);
+  });
+
+  appTest('a Traditional Chinese device gets the Chinese UI and sample day', (tester, harness) async {
+    await pumpApp(tester, harness, locale: const Locale('zh'));
+    expect(find.text('段時刻'), findsOneWidget);
     expect(find.text('API 先照 v2 走'), findsOneWidget);
-    expect(find.text('通勤 · 未分析'), findsNWidgets(2));
+    expect(find.text('10/27 週二'), findsOneWidget);
     expect(find.text('未錄音'), findsOneWidget);
-    expect(find.bySemanticsLabel('10:00 API 先照 v2 走'), findsOneWidget);
   });
 
   appTest('the record button starts and stops a Day session; the pill says so', (tester, harness) async {
     final h = await pumpApp(tester, harness, sampleDay: false);
-    expect(find.text('今天還沒有錄音。點錄音鍵開始。'), findsOneWidget);
-    await tester.tap(find.bySemanticsLabel('開始錄音'));
+    expect(find.text('Nothing recorded today. Tap the record button to start.'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Start recording'));
     await tester.pumpAndSettle();
-    expect(find.text('錄音中 0:00'), findsOneWidget);
+    expect(find.text('Recording 0:00'), findsOneWidget);
     expect(h.engine.state, isA<CaptureRecording>());
 
-    await tester.tap(find.bySemanticsLabel('停止錄音'));
+    await tester.tap(find.bySemanticsLabel('Stop recording'));
     await h.settle(tester);
-    expect(find.text('未錄音'), findsOneWidget);
+    expect(find.text('Not recording'), findsOneWidget);
     final session = await h.db.select(h.db.session).getSingle();
     expect((session.scene, session.status), ('day', 'closed'));
   });
 
   appTest('every capture state has its own label, not just a color', (tester, harness) async {
-    final h = await pumpApp(tester, harness, locale: const Locale('en'), sampleDay: false);
+    final h = await pumpApp(tester, harness, sampleDay: false);
     await h.engine.start(Scene.day, tap);
     await tester.pumpAndSettle();
     expect(find.text('Recording 0:00'), findsOneWidget);
@@ -130,14 +142,14 @@ void main() {
     final h = await pumpApp(tester, harness, sampleDay: false);
     await h.engine.start(Scene.day, tap);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('錄音中 0:00'));
+    await tester.tap(find.text('Recording 0:00'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('暫停'));
+    await tester.tap(find.text('Pause'));
     await tester.pumpAndSettle();
-    expect(find.text('已暫停 · 手動'), findsOneWidget);
-    await tester.tap(find.text('已暫停 · 手動'));
+    expect(find.text('Paused · by you'), findsOneWidget);
+    await tester.tap(find.text('Paused · by you'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('繼續'));
+    await tester.tap(find.text('Resume'));
     await tester.pumpAndSettle();
     expect(h.engine.state, isA<CaptureRecording>());
     await h.engine.stop();
@@ -146,8 +158,8 @@ void main() {
 
   appTest('with Live Activities off, Today says why and capture does not start', (tester, harness) async {
     final h = await pumpApp(tester, harness, sampleDay: false, liveActivities: false);
-    expect(find.textContaining('即時動態已關閉'), findsOneWidget);
-    await tester.tap(find.bySemanticsLabel('開始錄音'));
+    expect(find.textContaining('Live Activities are off'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Start recording'));
     await tester.pumpAndSettle();
     expect(h.engine.state, isA<CaptureIdle>());
   });
@@ -156,12 +168,12 @@ void main() {
     final h = await pumpApp(tester, harness);
     await h.engine.start(Scene.day, tap);
     await tester.pumpAndSettle();
-    await tester.tap(find.bySemanticsLabel('我'));
+    await tester.tap(find.bySemanticsLabel('Me'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('隱私中心'));
+    await tester.tap(find.text('Privacy center'));
     await h.settle(tester);
-    expect(find.text('存在這支手機'), findsOneWidget);
-    expect(find.text('錄音中 0:00'), findsOneWidget); // I2
+    expect(find.text('Stored on this phone'), findsOneWidget);
+    expect(find.text('Recording 0:00'), findsOneWidget); // I2
     expect(find.text('8'), findsOneWidget); // moments stored
     await h.engine.stop();
     await tester.pumpAndSettle();

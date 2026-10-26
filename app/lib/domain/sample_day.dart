@@ -5,14 +5,56 @@ import '../core/ids.dart';
 import '../data/database.dart';
 
 /// Mia's day from the user-value doc, as on the Today design (docs/design/canvas
-/// Main.dc.html). Dev flavor only (flag `dev.sample_day`); never in alpha or beta.
+/// Main.dc.html). English by default; Traditional Chinese on a `zh` device (D30).
+/// Dev flavor only (flag `dev.sample_day`); never in alpha or beta.
 class SampleDay {
-  SampleDay(this._db, this._clock);
+  SampleDay(this._db, this._clock, {String languageCode = 'en'}) : _moments = languageCode == 'zh' ? _zh : _en;
 
   final AppDatabase _db;
   final Clock _clock;
+  final List<(String, int, String, String?, bool, List<(String, String)>, bool)> _moments;
 
-  static const _moments = [
+  static const _en = [
+    // (local start, minutes, scene, title or null, analyzed, items, marked)
+    ('08:40', 20, 'commute', null, false, <(String, String)>[], false),
+    ('09:05', 6, 'social', 'Coffee shop chat', true, <(String, String)>[], false),
+    ('09:40', 1, 'solo', '"Remember to call the bank"', true, [('promise', 'Call the bank')], false),
+    (
+      '10:00',
+      24,
+      'meeting',
+      'API stays on v2 for now',
+      true,
+      [
+        ('decision', 'API stays on v2 for now'),
+        ('promise', 'Send the spec draft by Thursday'),
+        ('question', 'Can we lock it by Friday?'),
+      ],
+      false,
+    ),
+    (
+      '12:30',
+      52,
+      'social',
+      'She changed jobs, recommends Atomic Habits',
+      true,
+      [('fact', 'She changed jobs'), ('fact', 'Recommends Atomic Habits')],
+      false,
+    ),
+    (
+      '14:00',
+      38,
+      'call',
+      '"I\'ll send you the spec by Thursday"',
+      true,
+      [('promise', 'Send the spec by Thursday')],
+      false,
+    ),
+    ('18:05', 12, 'commute', null, false, <(String, String)>[], false),
+    ('20:41', 2, 'show', '[PLACEHOLDER show clip]', true, <(String, String)>[], true),
+  ];
+
+  static const _zh = [
     // (local start, minutes, scene, title or null, analyzed, items, marked)
     ('08:40', 20, 'commute', null, false, <(String, String)>[], false),
     ('09:05', 6, 'social', '咖啡店閒聊', true, <(String, String)>[], false),

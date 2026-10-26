@@ -104,45 +104,59 @@ class _Header extends ConsumerWidget {
     final l = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context);
     final now = ref.watch(clockProvider).now();
-    final date = DateFormat('M/d EEE', locale.languageCode == 'zh' ? 'zh_TW' : locale.toLanguageTag()).format(now);
+    final date = locale.languageCode == 'zh'
+        ? DateFormat('M/d EEE', 'zh_TW').format(now)
+        : DateFormat('EEE M/d', 'en_US').format(now);
+    final pill = StatePill(state: state, onTap: state is CaptureIdle ? null : () => showCaptureControls(context, ref));
+    final dateText = Text(date, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700));
+    final search = Semantics(
+      button: true,
+      label: l.search,
+      excludeSemantics: true,
+      child: Material(
+        color: MonaColors.surface,
+        shape: const CircleBorder(),
+        child: InkWell(
+          customBorder: const CircleBorder(),
+          onTap: () => _comingSoon(context),
+          child: const SizedBox.square(
+            dimension: MonaSpace.minTouch,
+            child: Center(child: MonaIconView(MonaIcon.search, size: 20, color: MonaColors.text)),
+          ),
+        ),
+      ),
+    );
+    // Pill left, date centered, search right; at large text sizes the date moves to its own line (§5.5).
+    final large = MediaQuery.textScalerOf(context).scale(17) > 17 * 1.3;
     return Padding(
       padding: const EdgeInsets.fromLTRB(MonaSpace.side, 8, MonaSpace.side, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: StatePill(
-                state: state,
-                onTap: state is CaptureIdle ? null : () => showCaptureControls(context, ref),
-              ),
-            ),
-          ),
-          Text(date, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-          Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Semantics(
-                button: true,
-                label: l.search,
-                excludeSemantics: true,
-                child: Material(
-                  color: MonaColors.surface,
-                  shape: const CircleBorder(),
-                  child: InkWell(
-                    customBorder: const CircleBorder(),
-                    onTap: () => _comingSoon(context),
-                    child: const SizedBox.square(
-                      dimension: MonaSpace.minTouch,
-                      child: Center(child: MonaIconView(MonaIcon.search, size: 20, color: MonaColors.text)),
-                    ),
-                  ),
+      child: large
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Flexible(child: pill),
+                    const SizedBox(width: 8),
+                    const Spacer(),
+                    search,
+                  ],
                 ),
-              ),
+                const SizedBox(height: 8),
+                dateText,
+              ],
+            )
+          : Row(
+              children: [
+                Expanded(
+                  child: Align(alignment: Alignment.centerLeft, child: pill),
+                ),
+                dateText,
+                Expanded(
+                  child: Align(alignment: Alignment.centerRight, child: search),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
     );
   }
 }

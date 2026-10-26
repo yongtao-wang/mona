@@ -32,6 +32,7 @@ Future<Bootstrapped> bootstrap({
   CaptureEngine? engine,
   Clock clock = const Clock(),
   bool? sampleDay,
+  String language = 'en',
 }) async {
   final log = Log();
   final db = database ?? AppDatabase(openConnection(keys: InMemoryKeyStore()));
@@ -43,7 +44,7 @@ Future<Bootstrapped> bootstrap({
   final recorder = SessionRecorder(db, capture)..start();
 
   if (env.flavor == Flavor.dev && (sampleDay ?? await flags.boolFlag('dev.sample_day'))) {
-    await SampleDay(db, clock).seedIfEmpty();
+    await SampleDay(db, clock, languageCode: language).seedIfEmpty();
   }
   log.event('app_started', {'flavor': env.flavor.name, 'count': kIsWeb ? 1 : 0});
 

@@ -30,7 +30,7 @@
   "viewItems": "Promises and items",
   "viewMarked": "Marked moments",
   "search": "Search",
-  "itemCount": "{count} items",
+  "itemCount": "{count, plural, =1{1 item} other{{count} items}}",
   "@itemCount": { "placeholders": { "count": { "type": "int" } } },
   "notAnalyzed": "{scene} · not analyzed",
   "@notAnalyzed": { "placeholders": { "scene": { "type": "String" } } },
