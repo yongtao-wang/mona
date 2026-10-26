@@ -123,3 +123,22 @@ Deno.test("device registration is unique per user and install", async () => {
   }
   assert(failed);
 });
+
+Deno.test("record_usage adds calls, tokens, cost and refusals per day and endpoint", async () => {
+  const db = await freshDb();
+  await db.query("insert into auth.users (id) values ($1)", [U1]);
+  const call = "select public.record_usage($1, 'moments_label', $2, $3, $4, $5, $6)";
+  await db.query(call, [U1, 900, 600, 120, 1020, false]);
+  await db.query(call, [U1, 100, 0, 10, 50, true]);
+  const r = await db.query<Record<string, number>>(
+    "select calls, input_tokens::int, cached_tokens::int, output_tokens::int, refusals, cost_micros::int from public.usage_daily",
+  );
+  assertEquals(r.rows, [{
+    calls: 2,
+    input_tokens: 1000,
+    cached_tokens: 600,
+    output_tokens: 130,
+    refusals: 1,
+    cost_micros: 1070,
+  }]);
+});

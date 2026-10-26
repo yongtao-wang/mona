@@ -42,3 +42,35 @@ export function rejectBinary(value: unknown, path: string): void {
     for (const [k, v] of Object.entries(value)) rejectBinary(v, `${path}/${k}`);
   }
 }
+
+/** JSON paths and keywords of where [value] fails [schema], or an empty list. */
+export function issuesOf(schema: SchemaName, value: unknown): ValidationIssue[] {
+  const fn = ajv.getSchema(schemas[schema].$id)!;
+  if (fn(value)) return [];
+  return (fn.errors ?? []).map((e: ErrorObject) => ({ path: e.instancePath || "/", keyword: e.keyword }));
+}
+
+/**
+ * [schema] as one self-contained document: cross-file `$ref`s to common.schema.json
+ * are inlined, and [omit] top-level properties are removed (fields the gateway adds,
+ * such as `model_version`). Used as the model's structured-output schema.
+ */
+export function selfContained(schema: SchemaName, omit: string[] = []): Record<string, unknown> {
+  const defs = (schemas["common.schema.json"] as { $defs: Record<string, unknown> }).$defs;
+  const inline = (v: unknown): unknown => {
+    if (Array.isArray(v)) return v.map(inline);
+    if (v && typeof v === "object") {
+      const ref = (v as { $ref?: string }).$ref;
+      if (ref?.startsWith("common.schema.json#/$defs/")) return inline(defs[ref.split("/").pop()!]);
+      return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, inline(x)]));
+    }
+    return v;
+  };
+  const out = inline(schemas[schema]) as {
+    properties: Record<string, unknown>;
+    required: string[];
+  } & Record<string, unknown>;
+  for (const key of omit) delete out.properties[key];
+  out.required = out.required.filter((k) => !omit.includes(k));
+  return out;
+}

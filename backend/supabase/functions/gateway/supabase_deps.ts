@@ -2,6 +2,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { DeviceRequest } from "../_shared/contracts/types.ts";
 import type { AuthVerifier, QuotaResult, Store } from "./deps.ts";
+import type { Usage } from "./llm/provider.ts";
 
 export function supabaseAdmin(): SupabaseClient {
   return createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, {
@@ -47,5 +48,18 @@ export class SupabaseStore implements Store {
     const row = (data as { allowed: boolean; code: string | null; retry_after_s: number }[])[0];
     if (row.allowed) return { allowed: true };
     return { allowed: false, code: row.code as "rate_limited" | "quota_exceeded", retryAfterS: row.retry_after_s };
+  }
+
+  async recordUsage(userId: string, endpoint: string, u: { usage: Usage; costMicros: number; refused: boolean }) {
+    const { error } = await this.db.rpc("record_usage", {
+      p_user_id: userId,
+      p_endpoint: endpoint,
+      p_input_tokens: u.usage.inputTokens + u.usage.cacheWriteTokens,
+      p_cached_tokens: u.usage.cachedTokens,
+      p_output_tokens: u.usage.outputTokens,
+      p_cost_micros: u.costMicros,
+      p_refused: u.refused,
+    });
+    if (error) throw new Error(`record_usage failed: ${error.code}`);
   }
 }

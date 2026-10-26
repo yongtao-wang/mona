@@ -1,14 +1,16 @@
 // The gateway (spec §11.4, D6): one function, internal routing. Every request passes
 // the same checks in order: route, app version, body size, JWT, device, quota, schema.
-import type { DeviceRequest } from "../_shared/contracts/types.ts";
+import type { DeviceRequest, MomentLabelRequest } from "../_shared/contracts/types.ts";
 import type { Deps } from "./deps.ts";
 import { MAX_BODY_BYTES } from "./deps.ts";
 import { errorBody, GatewayError, statusOf } from "./errors.ts";
 import { getConfig } from "./routes/config.ts";
 import { registerDevice } from "./routes/device.ts";
+import { labelMoment } from "./routes/moments_label.ts";
+import type { RouteLog } from "./log.ts";
 import { type SchemaName, validate } from "./validate.ts";
 
-export type RouteContext<B> = { deps: Deps; userId: string; deviceId: string | null; body: B };
+export type RouteContext<B> = { deps: Deps; userId: string; deviceId: string | null; body: B; log: RouteLog };
 
 type Route = {
   method: "GET" | "POST" | "DELETE";
@@ -30,6 +32,13 @@ const ROUTES: Record<string, Route> = {
     handle: (ctx: RouteContext<DeviceRequest>) => registerDevice(ctx),
   },
   "/v1/config": { method: "GET", endpoint: "config", needsDevice: true, handle: getConfig },
+  "/v1/moments/label": {
+    method: "POST",
+    endpoint: "moments_label",
+    requestSchema: "moment_label_request.schema.json",
+    needsDevice: true,
+    handle: (ctx: RouteContext<MomentLabelRequest>) => labelMoment(ctx),
+  },
 };
 
 const CORS: Record<string, string> = {
@@ -84,6 +93,7 @@ export async function handle(req: Request, deps: Deps): Promise<Response> {
   const path = routePath(req.url);
   const route = ROUTES[path];
   const routeName = route ? path : "unknown";
+  const routeLog: RouteLog = {};
 
   try {
     if (!route) throw new GatewayError("not_found");
@@ -109,9 +119,9 @@ export async function handle(req: Request, deps: Deps): Promise<Response> {
     if (!quota.allowed) throw new GatewayError(quota.code, quota.retryAfterS);
 
     const body = route.requestSchema ? validate(route.requestSchema, await readBody(req)) : undefined;
-    const result = await route.handle({ deps, userId, deviceId, body });
+    const result = await route.handle({ deps, userId, deviceId, body, log: routeLog });
 
-    deps.log({ request_id: requestId, route: routeName, status: 200, latency_ms: deps.now() - started });
+    deps.log({ request_id: requestId, route: routeName, status: 200, latency_ms: deps.now() - started, ...routeLog });
     return json(200, result, { "x-request-id": requestId });
   } catch (e) {
     const err = e instanceof GatewayError ? e : new GatewayError("internal");
@@ -123,6 +133,7 @@ export async function handle(req: Request, deps: Deps): Promise<Response> {
       latency_ms: deps.now() - started,
       code: err.code,
       validation: err.validation,
+      ...routeLog,
     });
     const extra: Record<string, string> = { "x-request-id": requestId };
     if (err.retryAfterS !== undefined) extra["retry-after"] = String(err.retryAfterS);

@@ -11,9 +11,29 @@ export type LogEntry = {
   latency_ms: number;
   code?: ErrorCode;
   validation?: ValidationIssue[];
+  /** Model calls: model id and token counts (§11.4 step 9). */
+  model?: string;
+  input_tokens?: number;
+  output_tokens?: number;
+  /** Items dropped by the citation check (I9). */
+  items_dropped?: number;
 };
 
-const ALLOWED = new Set(["request_id", "route", "status", "latency_ms", "code", "validation"]);
+/** What a route may add to its request's log line. */
+export type RouteLog = Pick<LogEntry, "model" | "input_tokens" | "output_tokens" | "items_dropped">;
+
+const ALLOWED = new Set([
+  "request_id",
+  "route",
+  "status",
+  "latency_ms",
+  "code",
+  "validation",
+  "model",
+  "input_tokens",
+  "output_tokens",
+  "items_dropped",
+]);
 
 export type LogSink = (line: string) => void;
 
