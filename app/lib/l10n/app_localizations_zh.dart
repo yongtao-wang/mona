@@ -177,6 +177,25 @@ class AppLocalizationsZh extends AppLocalizations {
   String flavorLabel(String flavor) {
     return '版本：$flavor';
   }
+
+  @override
+  String get debugAnalyzeSample => '分析一段範例會議';
+
+  @override
+  String get debugNoGateway => '這個版本沒有 gateway。請加上 --dart-define=GATEWAY_URL=... 和 DEV_TOKEN=dev。';
+
+  @override
+  String debugAnalysisResult(String status) {
+    return '分析：$status';
+  }
+
+  @override
+  String get you => '我';
+
+  @override
+  String speakerLabel(String label) {
+    return '說話者 $label';
+  }
 }
 
 /// The translations for Chinese, as used in Taiwan, using the Han script (`zh_Hant_TW`).

@@ -534,7 +534,7 @@ Runs on the phone before anything leaves it (I4).
 4. **Known names in text.** Candidates are the self person, named speakers, calendar attendees for the session and all `person` rows. For each, the matcher uses the display name, aliases and generated variants, longest match first:
    - Latin names: whole word, case-insensitive, with possessives.
    - CJK names: the full name (陳怡君), the given name (怡君), the family name plus a title from a fixed list (陳經理, 陳小姐, 陳先生, 陳老師), and homophones by toneless pinyin over the same spans, so an ASR spelling like 陳宜君 still matches. A family name alone is never replaced (陳 also appears in 陳述).
-5. **Patterns:** emails, phone numbers (Taiwan mobile `09\d{2}[- ]?\d{3}[- ]?\d{3}`, `+886` forms, landlines), Taiwan national ID and resident certificate numbers (`[A-Z][12A-D89]\d{8}`), and payment card numbers (13 to 19 digits passing Luhn) become numbered tokens: `<EMAIL_1>`, `<PHONE_1>`, `<ID_1>`, `<CARD_1>`. Numbering lets the client restore each one in the response.
+5. **Patterns:** emails, phone numbers (Taiwan mobile `09\d{2}[- ]?\d{3}[- ]?\d{3}`, `+886` forms, landlines; North American numbers, D30), Taiwan national ID and resident certificate numbers (`[A-Z][12A-D89]\d{8}`), and payment card numbers (13 to 19 digits passing Luhn) become numbered tokens: `<EMAIL_1>`, `<PHONE_1>`, `<ID_1>`, `<CARD_1>`. Numbering lets the client restore each one in the response.
 6. **Storage.** The gateway response comes back with tokens. Item text and minutes are stored with `{{spk:<speaker_id>}}` for speakers and `{{per:<person_id>}}` for non-speaking people, rendered with current names at display time; pattern tokens are restored to the original text. Renaming or fixing a speaker therefore updates every transcript line, item and recap entry without re-calling the cloud (PRD: "a fix updates the transcript and the recap").
 7. **Not sent:** calendar event titles, place labels, coordinates, contact details.
 
@@ -1606,6 +1606,8 @@ Choices this spec makes that the source docs leave open or that resolve a confli
 | D28 | `cloud_contracts` generates TypeScript and Dart types with quicktype, and bundles the schemas for the gateway's Ajv validator | One generator for both languages; the gateway validates against the same files | If generated Dart becomes awkward enough to hand-write |
 | D29 | The gateway verifies JWTs itself (`verify_jwt = false` on the function) | So a bad token gets the §12.7 error body instead of the platform's | — |
 | D30 | English-first UI: English is the default and fallback language, Traditional Chinese the second. North America is a target market alongside Taiwan | Product direction (2026-10-26); the PRD still says "Taiwan first" and is updated at its source by its owner | Launch order decided (§22) |
+| D31 | A local gateway dev server (`deno task dev`) runs the real handler with an in-memory store, a dev token and a fake or Claude provider; the dev app reaches it with `GATEWAY_URL` and `DEV_TOKEN` | Runs the whole text pipeline (pseudonymizer, gateway, model, citation checks, stored items) without a Supabase project or Apple hardware | When a staging Supabase project exists |
+| D32 | The fake provider is a heuristic stand-in, not a model: one item per promise-like or question-like line | Deterministic tests and demos without an API key; accuracy is measured only with a real model on the eval set (§16) | — |
 
 ---
 

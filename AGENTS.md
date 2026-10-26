@@ -1,6 +1,6 @@
 # mona — Agent Guide
 
-Codename for the Day Recap App: an iPhone app (Android later) that records conversations the user starts, knows who said what, and hands back one short recap each evening, with promises, decisions and things to remember. Audio and voice signatures stay on the phone; only pseudonymized text goes to the cloud. Stack: Flutter app with native Swift engines for capture and speech, Supabase (Postgres, a Deno/TypeScript edge-function gateway), and a Python evaluation harness. The first slice of Phase 1 M1 exists: contracts, the server schema and gateway skeleton, and the app skeleton with a fake capture engine. The Swift engines, the eval harness and every LLM route are not built. Nothing is deployed.
+Codename for the Day Recap App: an iPhone app (Android later) that records conversations the user starts, knows who said what, and hands back one short recap each evening, with promises, decisions and things to remember. Audio and voice signatures stay on the phone; only pseudonymized text goes to the cloud. Stack: Flutter app with native Swift engines for capture and speech, Supabase (Postgres, a Deno/TypeScript edge-function gateway), and a Python evaluation harness. Built so far: contracts, the server schema and gateway with `/v1/device`, `/v1/config` and `/v1/moments/label` (Claude or a fake model), and the app skeleton with a fake capture engine, the pseudonymizer and the analysis queue. The Swift engines, the recap route and the eval harness are not built. Nothing is deployed.
 
 ## Commands
 
@@ -12,6 +12,8 @@ Toolchains: Flutter as pinned in `.fvmrc`, Deno 2. CI runs the same steps (`.git
 | `app/` | `flutter analyze`, `dart format lib test`, `flutter test` | Lint, format, unit, DB and widget tests (SQLCipher in-process) |
 | `app/` | `./tool/fetch_web_assets.sh`, then `flutter run -d web-server` | Web dev preview with the Mia sample day (D26); English unless the browser is Chinese, or force with `--dart-define=LOCALE=zh_Hant_TW` |
 | `backend/supabase/` | `deno fmt --check`, `deno lint`, `deno task check`, `deno task test` | Gateway tests and migration tests on PGlite |
+| `backend/supabase/` | `deno task dev` (add `ANTHROPIC_API_KEY` for Claude, else a fake model) | Local gateway on `http://localhost:8787/gateway` with an in-memory store (D31) |
+| `app/` | `flutter run -d web-server --dart-define=GATEWAY_URL=http://localhost:8787/gateway --dart-define=DEV_TOKEN=dev` | Web preview against the local gateway; Me → Debug flags → Analyze a sample meeting runs the whole text pipeline |
 | `backend/` | `supabase db start`, `supabase db lint` | Migrations on a local Supabase (needs Docker) |
 | `packages/cloud_contracts/` | `deno task gen` | Regenerate TS and Dart types after a schema change; commit the output |
 | `packages/engine_api/` | `dart run pigeon --input pigeons/engine.dart` | Regenerate the native channel code |

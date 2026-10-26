@@ -4,6 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/misc.dart';
 
+import 'cloud/cloud_services.dart';
 import 'core/flags.dart';
 import 'core/flavor.dart';
 import 'core/log.dart';
@@ -48,11 +49,22 @@ Future<Bootstrapped> bootstrap({
   }
   log.event('app_started', {'flavor': env.flavor.name, 'count': kIsWeb ? 1 : 0});
 
+  final cloud = await CloudServices.create(
+    env: env,
+    db: db,
+    clock: clock,
+    log: log,
+    uncertainBelow: await flags.doubleFlag('tau_uncertain'),
+  );
+  // Never blocks the UI; failures are queued and retried (§8.8).
+  if (cloud != null) unawaited(cloud.start().catchError((Object e, StackTrace st) => log.error('cloud_start', e, st)));
+
   return Bootstrapped([
     envProvider.overrideWithValue(env),
     databaseProvider.overrideWithValue(db),
     captureEngineProvider.overrideWithValue(capture),
     clockProvider.overrideWithValue(clock),
     logProvider.overrideWithValue(log),
+    cloudProvider.overrideWithValue(cloud),
   ], recorder);
 }

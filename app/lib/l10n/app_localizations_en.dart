@@ -179,4 +179,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String flavorLabel(String flavor) {
     return 'Build: $flavor';
   }
+
+  @override
+  String get debugAnalyzeSample => 'Analyze a sample meeting';
+
+  @override
+  String get debugNoGateway => 'No gateway in this build. Run with --dart-define=GATEWAY_URL=... and DEV_TOKEN=dev.';
+
+  @override
+  String debugAnalysisResult(String status) {
+    return 'Analysis: $status';
+  }
+
+  @override
+  String get you => 'You';
+
+  @override
+  String speakerLabel(String label) {
+    return 'Speaker $label';
+  }
 }

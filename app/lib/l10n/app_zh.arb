@@ -50,5 +50,10 @@
   "privacyMoments": "時刻",
   "privacyAudioFiles": "音檔",
   "debugFlags": "除錯旗標",
-  "flavorLabel": "版本：{flavor}"
+  "flavorLabel": "版本：{flavor}",
+  "debugAnalyzeSample": "分析一段範例會議",
+  "debugNoGateway": "這個版本沒有 gateway。請加上 --dart-define=GATEWAY_URL=... 和 DEV_TOKEN=dev。",
+  "debugAnalysisResult": "分析：{status}",
+  "you": "我",
+  "speakerLabel": "說話者 {label}"
 }

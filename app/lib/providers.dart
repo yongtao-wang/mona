@@ -1,10 +1,12 @@
 import 'package:clock/clock.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'cloud/cloud_services.dart';
 import 'core/flags.dart';
 import 'core/flavor.dart';
 import 'core/log.dart';
 import 'data/database.dart';
+import 'domain/placeholders.dart';
 import 'domain/today.dart';
 import 'engines/capture_engine.dart';
 
@@ -17,6 +19,9 @@ final captureEngineProvider = Provider<CaptureEngine>((ref) => throw Unimplement
 final clockProvider = Provider<Clock>((ref) => const Clock());
 final logProvider = Provider<Log>((ref) => Log());
 
+/// Null when the build has no gateway (offline).
+final cloudProvider = Provider<CloudServices?>((ref) => null);
+
 final flagsProvider = Provider<Flags>((ref) => Flags(ref.watch(databaseProvider), ref.watch(envProvider).flavor));
 final flagValuesProvider = StreamProvider<Map<String, String>>((ref) => ref.watch(flagsProvider).watchAll());
 
@@ -26,6 +31,15 @@ final captureStateProvider = StreamProvider<CaptureState>((ref) async* {
   await for (final e in engine.events) {
     if (e is CaptureStateEvent) yield e.state;
   }
+});
+
+/// Current names for placeholders; reloads when speakers or people change.
+final placeholderRendererProvider = StreamProvider<PlaceholderRenderer>((ref) {
+  final db = ref.watch(databaseProvider);
+  return db
+      .customSelect('SELECT 1', readsFrom: {db.speaker, db.person})
+      .watch()
+      .asyncMap((_) => PlaceholderRenderer.load(db));
 });
 
 final todayProvider = StreamProvider<TodaySummary>(

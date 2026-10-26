@@ -1,8 +1,9 @@
 {
   "tasks": {
     "test": "deno test --allow-read --allow-env tests/",
-    "check": "deno check functions/gateway/index.ts tests/",
-    "fmt": "deno fmt --check"
+    "check": "deno check functions/gateway/index.ts functions/gateway/dev_server.ts tests/",
+    "fmt": "deno fmt --check",
+    "dev": "deno run --allow-net --allow-env --allow-read functions/gateway/dev_server.ts"
   },
   "imports": {
     "@std/assert": "jsr:@std/assert@1.0.14",

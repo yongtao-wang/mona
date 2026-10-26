@@ -401,6 +401,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Build: {flavor}'**
   String flavorLabel(String flavor);
+
+  /// No description provided for @debugAnalyzeSample.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze a sample meeting'**
+  String get debugAnalyzeSample;
+
+  /// No description provided for @debugNoGateway.
+  ///
+  /// In en, this message translates to:
+  /// **'No gateway in this build. Run with --dart-define=GATEWAY_URL=... and DEV_TOKEN=dev.'**
+  String get debugNoGateway;
+
+  /// No description provided for @debugAnalysisResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis: {status}'**
+  String debugAnalysisResult(String status);
+
+  /// No description provided for @you.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get you;
+
+  /// No description provided for @speakerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Speaker {label}'**
+  String speakerLabel(String label);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

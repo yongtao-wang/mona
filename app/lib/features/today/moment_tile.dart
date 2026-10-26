@@ -1,24 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/today.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers.dart';
 import '../theme/icons.dart';
 import '../theme/tokens.dart';
 
 /// Moment tile (ui-design §4): Scene ground, type icon and duration on top; quote and
 /// meta (time, item badge, mark star) at the bottom. One button whose accessible name
 /// is time + quote.
-class MomentTileView extends StatelessWidget {
+class MomentTileView extends ConsumerWidget {
   const MomentTileView({super.key, required this.tile, this.onTap});
 
   final MomentTile tile;
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l = AppLocalizations.of(context);
+    final names = ref.watch(placeholderRendererProvider).value;
     final time = '${tile.startAt.hour.toString().padLeft(2, '0')}:${tile.startAt.minute.toString().padLeft(2, '0')}';
-    final quote = tile.quote ?? l.notAnalyzed(sceneName(l, tile.scene));
+    final raw = tile.quote;
+    final quote = raw == null
+        ? l.notAnalyzed(sceneName(l, tile.scene))
+        : names?.render(raw, you: l.you, speaker: l.speakerLabel) ?? raw;
     final minutes = tile.duration.inMinutes < 1 ? 1 : tile.duration.inMinutes;
     return Semantics(
       button: true,
