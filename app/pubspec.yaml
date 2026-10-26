@@ -23,6 +23,7 @@ dependencies:
   sqlite3: ^3.8.0
   supabase_flutter: ^2.18.3
   uuid: ^4.6.0
+  pinyin: ^3.3.0
 
 dev_dependencies:
   flutter_test:
