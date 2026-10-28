@@ -41,9 +41,12 @@ class AppEnv {
   /// Token the dev server accepts instead of a Supabase session. Dev flavor only.
   final String? devToken;
 
-  Uri? get gatewayBase => gatewayUrl != null
-      ? Uri.parse(gatewayUrl!)
-      : supabaseUrl == null
-      ? null
-      : Uri.parse('$supabaseUrl/functions/v1/gateway');
+  /// A `GATEWAY_URL` starting with `/` is on the page's own origin (the hosted web
+  /// preview, D33); [origin] defaults to `Uri.base`.
+  Uri? gatewayBase([Uri? origin]) {
+    if (gatewayUrl case final url?) {
+      return url.startsWith('/') ? (origin ?? Uri.base).resolve(url) : Uri.parse(url);
+    }
+    return supabaseUrl == null ? null : Uri.parse('$supabaseUrl/functions/v1/gateway');
+  }
 }

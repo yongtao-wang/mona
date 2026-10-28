@@ -44,7 +44,7 @@ class CloudServices {
     required Log log,
     double uncertainBelow = 0.6,
   }) async {
-    final base = env.gatewayBase;
+    final base = env.gatewayBase();
     if (base == null) return null;
     final TokenSource tokens;
     if (env.devToken != null && env.flavor == Flavor.dev) {

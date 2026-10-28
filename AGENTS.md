@@ -14,6 +14,7 @@ Toolchains: Flutter as pinned in `.fvmrc`, Deno 2. CI runs the same steps (`.git
 | `backend/supabase/` | `deno fmt --check`, `deno lint`, `deno task check`, `deno task test` | Gateway tests and migration tests on PGlite |
 | `backend/supabase/` | `deno task dev` (add `ANTHROPIC_API_KEY` for Claude, else a fake model) | Local gateway on `http://localhost:8787/gateway` with an in-memory store (D31) |
 | `app/` | `flutter run -d web-server --dart-define=GATEWAY_URL=http://localhost:8787/gateway --dart-define=DEV_TOKEN=dev` | Web preview against the local gateway; Me → Debug flags → Analyze a sample meeting runs the whole text pipeline |
+| repo root | `FLUTTER_BIN=... DENO_BIN=deno bash deploy/vercel/build.sh` | The hosted dev preview in Vercel's Build Output format (`.vercel/output`); Vercel runs the same script when it builds the `mona-preview` project from this repo (D33) |
 | `backend/` | `supabase db start`, `supabase db lint` | Migrations on a local Supabase (needs Docker) |
 | `packages/cloud_contracts/` | `deno task gen` | Regenerate TS and Dart types after a schema change; commit the output |
 | `packages/engine_api/` | `dart run pigeon --input pigeons/engine.dart` | Regenerate the native channel code |

@@ -1608,6 +1608,7 @@ Choices this spec makes that the source docs leave open or that resolve a confli
 | D30 | English-first UI: English is the default and fallback language, Traditional Chinese the second. North America is a target market alongside Taiwan | Product direction (2026-10-26); the PRD still says "Taiwan first" and is updated at its source by its owner | Launch order decided (§22) |
 | D31 | A local gateway dev server (`deno task dev`) runs the real handler with an in-memory store, a dev token and a fake or Claude provider; the dev app reaches it with `GATEWAY_URL` and `DEV_TOKEN` | Runs the whole text pipeline (pseudonymizer, gateway, model, citation checks, stored items) without a Supabase project or Apple hardware | When a staging Supabase project exists |
 | D32 | The fake provider is a heuristic stand-in, not a model: one item per promise-like or question-like line | Deterministic tests and demos without an API key; accuracy is measured only with a real model on the eval set (§16) | — |
+| D33 | The web dev preview is hosted on Vercel (project `mona-preview`) as a preview deployment behind Vercel Authentication, with the gateway running the fake model and an in-memory store, built by `deploy/vercel/build.sh` | Lets the team try the app without installing anything; no API key, no cost, no real data. Not a product deployment: the product gateway is the Supabase function (D6) | When a staging Supabase project exists, or the preview needs a real model |
 
 ---
 
