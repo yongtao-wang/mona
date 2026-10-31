@@ -55,8 +55,6 @@ Toolchains: Flutter as pinned in `.fvmrc`, Deno 2. CI runs the same steps (`.git
 - Cloud sessions also block GitHub's GraphQL API, which `gh issue` and `gh label` use. There, use the REST API: `gh api repos/yongtao-wang/mona/issues` (list, add `-f title=... -f body=... -f 'labels[]=auto'` with `-X POST` to create), `gh api -X PATCH repos/yongtao-wang/mona/issues/N -f state=closed`, `gh api repos/yongtao-wang/mona/labels`. Deleting an issue needs GraphQL, so there "drop" closes it as not planned (`-f state_reason=not_planned`) instead.
 - The design canvas and the published design brief are private Claude artifacts. Agents under other accounts can't open them until they are shared; they work from `docs/design/` instead.
 - The published design brief is a copy of `docs/design/ui-design.md`; republish it after changing the file.
-- Vercel: every `create_deployment` passes `target: "preview"`; read `target` in the response and stop if it differs. Before sharing a link, check that project protection is `all` and that an unauthenticated `curl` is refused ([postmortem](docs/agents/postmortems/2026-10-28-vercel-deploy.md)).
-- Kill processes by PID (`pgrep`, then `kill`). `pkill -f` on a pattern that appears in your own command line kills your shell.
 
 ## Agent harness
 

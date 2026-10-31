@@ -33,7 +33,10 @@ applied is unconfirmed: the documented behavior and the result disagree.
 | 5 | First tried to push ~9 MB of build output through the MCP upload tool, whose input is base64 in the call | Check a tool's input shape before choosing it for large payloads |
 | 6 | Twice ran `pkill -f <pattern>` with a pattern that matched the agent's own shell, killing the command | Kill by PID from `pgrep`, never with `pkill -f` on a string the command line contains |
 
-## Rules now in place
+## Rules to keep
 
-- Every Vercel deploy passes `target: "preview"` and checks `target` in the response (AGENTS.md Gotchas).
+Not in AGENTS.md: they are specific to deploying. Candidates for a deploy skill.
+
+- Every Vercel deploy passes `target: "preview"` and checks `target` in the response.
 - Project protection is `all` before a link is shared, verified with an unauthenticated `curl`.
+- Kill processes by PID (`pgrep`, then `kill`), never `pkill -f` on a string in your own command line.
