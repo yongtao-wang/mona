@@ -24,6 +24,7 @@ dependencies:
   supabase_flutter: ^2.18.3
   uuid: ^4.6.0
   pinyin: ^3.3.0
+  flutter_secure_storage: ^11.2.0
 
 dev_dependencies:
   flutter_test:

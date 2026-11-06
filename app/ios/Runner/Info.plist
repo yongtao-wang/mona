@@ -66,5 +66,14 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Mona records the conversations you start, so it can tell you who said what and recap your day. Audio stays on this phone.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Development builds connect to a test server on your computer.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

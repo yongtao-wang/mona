@@ -2,7 +2,7 @@
 
 Codename for the **Day Recap App** (working name): a phone app that listens when you ask, knows who said what, and turns each moment into the right output (meeting minutes, a trip journal, a reel), then hands back one short recap each evening. Audio and voice signatures stay on the phone; only pseudonymized text from flagged moments goes to the cloud.
 
-The first slice of Phase 1 is in: gateway contracts, the Supabase schema and gateway skeleton, and the Flutter app skeleton with a fake capture engine. The native engines are not built yet. Commands are in [AGENTS.md](AGENTS.md#commands).
+The first slice of Phase 1 is in: gateway contracts, the Supabase schema and gateway skeleton, and the Flutter app skeleton with a fake capture engine. The native engines are not built yet. Commands are in [AGENTS.md](AGENTS.md#commands). To run it on an iPhone, see [docs/ios-device.md](docs/ios-device.md).
 
 ## Docs
 

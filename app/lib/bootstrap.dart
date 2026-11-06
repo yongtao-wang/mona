@@ -36,7 +36,8 @@ Future<Bootstrapped> bootstrap({
   String language = 'en',
 }) async {
   final log = Log();
-  final db = database ?? AppDatabase(openConnection(keys: InMemoryKeyStore()));
+  // The web preview has no keystore and an unencrypted database (D26).
+  final db = database ?? AppDatabase(openConnection(keys: kIsWeb ? InMemoryKeyStore() : KeychainKeyStore()));
   final flags = Flags(db, env.flavor);
   await flags.seed();
 
