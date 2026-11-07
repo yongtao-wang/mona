@@ -34,22 +34,32 @@ Future<Bootstrapped> bootstrap({
   Clock clock = const Clock(),
   bool? sampleDay,
   String language = 'en',
+  void Function(String step)? onStep,
 }) async {
   final log = Log();
+  void step(String name) {
+    onStep?.call(name);
+    log.event('startup', {'state': name});
+  }
+
+  step('open_database');
   // The web preview has no keystore and an unencrypted database (D26).
   final db = database ?? AppDatabase(openConnection(keys: kIsWeb ? InMemoryKeyStore() : KeychainKeyStore()));
   final flags = Flags(db, env.flavor);
   await flags.seed();
 
+  step('start_capture_engine');
   // The iOS engine replaces the fake once packages/capture_engine exists.
   final capture = engine ?? FakeCaptureEngine(clock: clock);
   final recorder = SessionRecorder(db, capture)..start();
 
+  step('sample_day');
   if (env.flavor == Flavor.dev && (sampleDay ?? await flags.boolFlag('dev.sample_day'))) {
     await SampleDay(db, clock, languageCode: language).seedIfEmpty();
   }
   log.event('app_started', {'flavor': env.flavor.name, 'count': kIsWeb ? 1 : 0});
 
+  step('cloud');
   final cloud = await CloudServices.create(
     env: env,
     db: db,
